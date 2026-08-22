@@ -1,0 +1,2191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#111317">
+  <title>Metro Lishi Lookup</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f5f6f8;
+      color: #15171a;
+    }
+
+    .app {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 18px;
+      align-items: end;
+      margin-bottom: 22px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 30px;
+    }
+
+    p {
+      margin: 0;
+      color: #5d626a;
+    }
+
+    .panel {
+      background: white;
+      border: 1px solid #dfe3e8;
+      border-radius: 16px;
+      padding: 18px;
+    }
+
+    .count {
+      font-size: 26px;
+      font-weight: 900;
+    }
+
+    .tiny {
+      font-size: 12px;
+      color: #69707a;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    button {
+      font: inherit;
+    }
+
+    .tab {
+      border: 1px solid #ccd2d9;
+      background: transparent;
+      border-radius: 999px;
+      padding: 10px 14px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .tab.active {
+      background: #1e293b;
+      color: white;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: #555b63;
+    }
+
+    input,
+    select {
+      width: 100%;
+      min-height: 44px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid #cfd5dc;
+      background: white;
+      font-size: 16px;
+    }
+
+    .grid3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 10px;
+      padding: 11px 16px;
+      background: #1e293b;
+      color: white;
+      cursor: pointer;
+      font-weight: 800;
+    }
+
+    .btn.secondary {
+      background: white;
+      color: #15171a;
+      border: 1px solid #cfd5dc;
+    }
+
+    .result {
+      display: none;
+      margin-top: 18px;
+    }
+
+    .result.show {
+      display: block;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: #e7eef7;
+      font-size: 12px;
+      font-weight: 800;
+      margin: 0 6px 6px 0;
+    }
+
+    .tool {
+      font-size: 36px;
+      font-weight: 900;
+      margin: 8px 0 2px;
+    }
+
+    .vehicle-line {
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+
+    .facts {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .fact {
+      border-top: 1px solid #e5e7eb;
+      padding-top: 10px;
+    }
+
+    .fact strong {
+      display: block;
+      margin-bottom: 3px;
+      font-size: 12px;
+      text-transform: uppercase;
+      color: #68707a;
+    }
+
+    .warning {
+      margin-top: 14px;
+      padding: 12px;
+      border-radius: 10px;
+      background: #fff7dd;
+      border: 1px solid #f1d683;
+    }
+
+    .success {
+      margin-top: 14px;
+      padding: 12px;
+      border-radius: 10px;
+      background: #eaf6ee;
+      border: 1px solid #b8ddc4;
+    }
+
+    .matches {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .match {
+      border: 1px solid #dfe3e8;
+      border-radius: 12px;
+      padding: 14px;
+    }
+
+    .match button {
+      margin-top: 10px;
+    }
+
+    .quick-tools {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .quick-tools button {
+      text-align: left;
+      background: white;
+      border: 1px solid #dfe3e8;
+      border-radius: 12px;
+      padding: 12px;
+      cursor: pointer;
+    }
+
+    .quick-tools strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    @media (max-width: 700px) {
+      .hero,
+      .grid3,
+      .facts,
+      .quick-tools {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <div class="hero">
+    <div>
+      <h1>Metro Lishi Lookup</h1>
+      <p>Search by vehicle, Lishi tool, or keyway.</p>
+    </div>
+
+    <div class="panel">
+      <div class="tiny">Lishi catalog</div>
+      <div class="count" id="toolCount">0</div>
+      <strong>tools indexed</strong>
+      <div class="tiny" style="margin-top:6px">
+        Metro Locksmith internal reference
+      </div>
+    </div>
+  </div>
+
+
+  <div class="panel">
+
+    <div class="tabs">
+      <button class="tab active" data-mode="ymm">Year / Make / Model</button>
+      <button class="tab" data-mode="lishi">Lishi Tool</button>
+      <button class="tab" data-mode="keyway">Keyway / Blank</button>
+      <button class="tab" data-mode="quick">Quick Search</button>
+    </div>
+
+
+    <div id="mode-ymm">
+
+      <div class="grid3">
+
+        <div>
+          <label for="year">Year</label>
+          <select id="year"></select>
+        </div>
+
+        <div>
+          <label for="make">Make</label>
+          <select id="make"></select>
+        </div>
+
+        <div>
+          <label for="model">Model</label>
+          <select id="model"></select>
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div id="mode-lishi" hidden>
+      <label for="lishi">Lishi stamped on the tool</label>
+      <input id="lishi" placeholder="Example: HU100R V3">
+    </div>
+
+
+    <div id="mode-keyway" hidden>
+      <label for="keyway">Keyway or blank number</label>
+      <input id="keyway" placeholder="Example: H75, HU101, Y157, TOY48">
+    </div>
+
+
+    <div id="mode-quick" hidden>
+      <label for="quickSearch">Quick shop search</label>
+      <input
+        id="quickSearch"
+        placeholder="Try: 2017 Range Rover Sport, HU101, H75, F-150"
+      >
+    </div>
+
+
+    <div class="actions">
+      <button class="btn" id="searchBtn">Search</button>
+      <button class="btn secondary" id="clearBtn">Clear</button>
+      <button class="btn secondary" id="recentBtn">Recent Searches</button>
+    </div>
+
+
+    <div id="result" class="result"></div>
+
+  </div>
+
+
+  <div class="quick-tools">
+
+    <button data-tool="FO38">
+      <strong>FO38</strong>
+      <span class="tiny">Older Ford / H75</span>
+    </button>
+
+    <button data-tool="HU100R V3">
+      <strong>HU100R V3</strong>
+      <span class="tiny">Newer BMW / MINI</span>
+    </button>
+
+    <button data-tool="NSN14 DR/BT">
+      <strong>NSN14 DR/BT</strong>
+      <span class="tiny">Nissan / Infiniti</span>
+    </button>
+
+  </div>
+
+</div>
+
+
+<script>
+
+const vehicleDatabase = [
+
+{
+  yearMin: 1996,
+  yearMax: 2014,
+  make: "Ford",
+  models: [
+    "F-150",
+    "Ranger",
+    "Explorer",
+    "Expedition",
+    "Mustang",
+    "Focus",
+    "Crown Victoria",
+    "E-Series"
+  ],
+  tool: "FO38",
+  keyway: "H75",
+  vehicleFamily: "FORD / LINCOLN / MERCURY — mostly 1996–2014",
+  examples:
+    "Older F-150, Ranger, Explorer, Expedition, Mustang, Focus, Crown Victoria and E-Series.",
+  used: "Door / ignition / trunk depending vehicle",
+  warning:
+    "Newer Ford vehicles can use HU101 or HU198. Never grab FO38 only because the vehicle says Ford.",
+  confidence: "Verified family fitment"
+},
+
+{
+  yearMin: 2000,
+  yearMax: 2014,
+  make: "BMW",
+  models: [
+    "1 Series",
+    "3 Series",
+    "5 Series",
+    "6 Series",
+    "7 Series",
+    "X1",
+    "X3",
+    "X5",
+    "X6",
+    "Z4"
+  ],
+  tool: "HU92",
+  keyway: "HU92",
+  vehicleFamily: "BMW / MINI — mostly 2000s–2014",
+  examples:
+    "Common CAS-era BMW and MINI mechanical door/emergency-key system.",
+  used: "Door / emergency key",
+  warning:
+    "HU92(10) also exists. Newer BMW and MINI commonly move to HU100R.",
+  confidence: "Verified family fitment"
+},
+
+{
+  yearMin: 2011,
+  yearMax: 2026,
+  make: "BMW",
+  models: [
+    "1 Series",
+    "2 Series",
+    "3 Series",
+    "4 Series",
+    "5 Series",
+    "6 Series",
+    "7 Series",
+    "X1",
+    "X2",
+    "X3",
+    "X4",
+    "X5",
+    "X6"
+  ],
+  tool: "HU100R V3",
+  keyway: "HU100R / HU127",
+  vehicleFamily: "BMW / MINI — mostly 2011+",
+  examples:
+    "Newer BMW 1–7 Series, X1–X6 and newer MINI vehicles.",
+  used: "Door / emergency key",
+  warning:
+    "HU100R is NOT GM HU100. The mechanical blade also does not tell you whether the car uses FEM, BDC or BDC2.",
+  confidence: "Verified family fitment"
+},
+
+{
+  yearMin: 1994,
+  yearMax: 2017,
+  make: "Dodge",
+  models: [
+    "Caravan",
+    "Charger",
+    "Challenger",
+    "Durango",
+    "Dakota"
+  ],
+  tool: "CY24",
+  keyway: "Y157 / Y159",
+  vehicleFamily:
+    "CHRYSLER / DODGE / JEEP — mostly 1994–2017",
+  examples:
+    "Caravan, Charger, Challenger, Durango, Chrysler 200/300, Town & Country, Wrangler and Grand Cherokee.",
+  used: "Door / ignition / trunk depending vehicle",
+  warning:
+    "Commercial CY24-CV and later Fiat-based FCA applications are different.",
+  confidence: "Verified family fitment"
+},
+
+{
+  yearMin: 1994,
+  yearMax: 2017,
+  make: "Jeep",
+  models: [
+    "Wrangler",
+    "Liberty",
+    "Grand Cherokee",
+    "Commander",
+    "Compass"
+  ],
+  tool: "CY24",
+  keyway: "Y157 / Y159",
+  vehicleFamily:
+    "CHRYSLER / DODGE / JEEP — mostly 1994–2017",
+  examples:
+    "Wrangler, Liberty, Grand Cherokee, Commander and older Compass applications.",
+  used: "Door / ignition / trunk depending vehicle",
+  warning:
+    "Later Fiat-based Jeep applications can use a completely different keyway.",
+  confidence: "Verified family fitment"
+},
+
+{
+  yearMin: 1990,
+  yearMax: 2013,
+  make: "Honda",
+  models: [
+    "Accord",
+    "Civic",
+    "CR-V",
+    "Odyssey",
+    "Pilot",
+    "Prelude"
+  ],
+  tool: "HON58R",
+  keyway: "HD103 / HON58R",
+  vehicleFamily:
+    "HONDA / ACURA — mostly 1990–2013",
+  examples:
+    "Older Accord, Civic, CR-V, Odyssey, Pilot and related Acura applications.",
+  used: "Door / ignition",
+  warning:
+    "Newer Honda and Acura vehicles commonly move to HON66.",
+  confidence: "Verified family fitment"
+},
+
+{
+  yearMin: 1990,
+  yearMax: 2013,
+  make: "Acura",
+  models: [
+    "CL",
+    "Integra",
+    "Legend",
+    "MDX",
+    "NSX",
+    "RL",
+    "RSX",
+    "TL",
+    "TSX"
+  ],
+  tool: "HON58R",
+  keyway: "HD103 / HON58R",
+  vehicleFamily:
+    "HONDA / ACURA — mostly 1990–2013",
+  examples:
+    "Older Acura CL, Integra, MDX, RL, RSX, TL and TSX.",
+  used: "Door / ignition",
+  warning:
+    "Newer Acura vehicles commonly move to HON66.",
+  confidence: "Verified family fitment"
+},
+
+{
+  yearMin: 2013,
+  yearMax: 2026,
+  make: "Honda",
+  models: [
+    "Accord",
+    "Civic",
+    "CR-V",
+    "Pilot",
+    "Odyssey",
+    "HR-V"
+  ],
+  tool: "HON66",
+  keyway: "H001 / HON66",
+  vehicleFamily:
+    "HONDA / ACURA — mostly 2013+",
+  examples:
+    "Newer Accord, Civic, CR-V, Pilot, Odyssey and HR-V.",
+  used: "Door / emergency key",
+  warning:
+    "Confirm the physical emergency blade on the newest applications.",
+  confidence: "Verified family fitment"
+},
+
+{
+  yearMin: 2013,
+  yearMax: 2026,
+  make: "Acura",
+  models: [
+    "ILX",
+    "TLX",
+    "MDX",
+    "RDX"
+  ],
+  tool: "HON66",
+  keyway: "H001 / HON66",
+  vehicleFamily:
+    "HONDA / ACURA — mostly 2013+",
+  examples:
+    "Newer Acura ILX, TLX, MDX and RDX.",
+  used: "Door / emergency key",
+  warning:
+    "Confirm the physical emergency blade on newest applications.",
+  confidence: "Verified family fitment"
+},
+
+{
+  yearMin: 1998,
+  yearMax: 2026,
+  make: "Nissan",
+  models: [
+    "Altima",
+    "Maxima",
+    "Sentra",
+    "Rogue",
+    "Murano",
+    "Frontier",
+    "Titan",
+    "Armada",
+    "Versa",
+    "350Z",
+    "370Z",
+    "Xterra",
+    "Juke",
+    "Kicks",
+    "Leaf"
+  ],
+  tool: "NSN14 DR/BT",
+  keyway: "DA34 / NSN14",
+  vehicleFamily:
+    "NISSAN / INFINITI — mostly 1998+",
+  examples:
+    "Altima, Maxima, Sentra, Rogue, Murano, Frontier, Titan, Armada, Versa, 350Z/370Z and others.",
+  used: "Door / trunk",
+  warning:
+    "There is a separate NSN14 ignition tool.",
+  confidence: "Verified family fitment"
+},
+
+{
+  yearMin: 1999,
+  yearMax: 2026,
+  make: "Infiniti",
+  models: [
+    "G35",
+    "G37",
+    "M35",
+    "M37",
+    "Q50",
+    "Q60",
+    "Q70",
+    "QX50",
+    "QX56",
+    "QX60",
+    "QX80",
+    "FX35",
+    "EX35"
+  ],
+  tool: "NSN14 DR/BT",
+  keyway: "DA34 / NSN14",
+  vehicleFamily:
+    "NISSAN / INFINITI — mostly 1998+",
+  examples:
+    "Infiniti G, M, Q, QX, FX and EX families.",
+  used: "Door / trunk",
+  warning:
+    "There is a separate NSN14 ignition tool.",
+  confidence: "Verified family fitment"
+},
+
+{
+  yearMin: 2000,
+  yearMax: 2026,
+  make: "Toyota",
+  models: [
+    "Camry",
+    "Corolla",
+    "Prius",
+    "RAV4",
+    "Highlander",
+    "Sienna",
+    "4Runner",
+    "Avalon",
+    "Venza"
+  ],
+  tool: "TOY48",
+  keyway: "TOY48",
+  vehicleFamily:
+    "TOYOTA / LEXUS — mostly 2000s+",
+  examples:
+    "Many Camry, Corolla, Prius, RAV4, Highlander, Sienna and Lexus applications.",
+  used: "Door / emergency key",
+  warning:
+    "Older Toyota applications may use TOY43. Newer platforms can use other 2-track systems.",
+  confidence: "Verified family fitment"
+},
+
+{
+  yearMin: 2000,
+  yearMax: 2026,
+  make: "Lexus",
+  models: [
+    "ES",
+    "GS",
+    "GX",
+    "IS",
+    "LS",
+    "LX",
+    "RX",
+    "CT",
+    "NX",
+    "RC"
+  ],
+  tool: "TOY48",
+  keyway: "TOY48",
+  vehicleFamily:
+    "TOYOTA / LEXUS — mostly 2000s+",
+  examples:
+    "Many Lexus ES, GS, GX, IS, LS, LX, RX, CT, NX and RC models.",
+  used: "Door / emergency key",
+  warning:
+    "Older Lexus applications may use TOY43-family tools.",
+  confidence: "Verified family fitment"
+},
+
+{
+  yearMin: 1998,
+  yearMax: 2018,
+  make: "Volkswagen",
+  models: [
+    "Jetta",
+    "Golf",
+    "Passat",
+    "Beetle",
+    "Tiguan",
+    "Touareg"
+  ],
+  tool: "HU66 GEN 1&2 / V3",
+  keyway: "HU66",
+  vehicleFamily:
+    "VOLKSWAGEN / AUDI / PORSCHE — mostly 1998–2010s",
+  examples:
+    "Jetta, Golf, Passat, Beetle, Tiguan and Touareg.",
+  used: "Door / ignition / emergency key",
+  warning:
+    "HU66 generations differ. Newer VAG vehicles can use HU162.",
+  confidence: "Verified family fitment"
+},
+
+{
+  yearMin: 2005,
+  yearMax: 2018,
+  make: "Audi",
+  models: [
+    "A3",
+    "A4",
+    "A5",
+    "A6",
+    "A7",
+    "A8",
+    "Q3",
+    "Q5",
+    "Q7"
+  ],
+  tool: "HU66 GEN 1&2 / V3",
+  keyway: "HU66",
+  vehicleFamily:
+    "VOLKSWAGEN / AUDI / PORSCHE — mostly 1998–2010s",
+  examples:
+    "Audi A and Q-series vehicles from the HU66 generation.",
+  used: "Door / emergency key",
+  warning:
+    "Newer Audi applications can use HU162 variants.",
+  confidence: "Verified family fitment"
+},
+
+{
+  yearMin: 1999,
+  yearMax: 2018,
+  make: "Porsche",
+  models: [
+    "911",
+    "Boxster",
+    "Cayenne",
+    "Cayman",
+    "Macan",
+    "Panamera"
+  ],
+  tool: "HU66 GEN 1&2 / V3",
+  keyway: "HU66",
+  vehicleFamily:
+    "VOLKSWAGEN / AUDI / PORSCHE — mostly 1998–2010s",
+  examples:
+    "911, Boxster, Cayenne, Cayman, Macan and Panamera.",
+  used: "Door / emergency key",
+  warning:
+    "HU66 tool generation matters.",
+  confidence: "Verified family fitment"
+},
+
+{
+  yearMin: 2017,
+  yearMax: 2026,
+  make: "Volkswagen",
+  models: [
+    "Jetta",
+    "Golf",
+    "Atlas",
+    "Tiguan",
+    "Arteon"
+  ],
+  tool: "HU162 VAG2015",
+  keyway: "HU162T family",
+  vehicleFamily:
+    "VOLKSWAGEN / AUDI / VAG — mostly 2017+",
+  examples:
+    "Newer Volkswagen applications after the HU66 generation.",
+  used: "Door / emergency key",
+  warning:
+    "HU162 has SC9, SC10 and other variants. Verify the exact side-cut version.",
+  confidence: "Verified family fitment"
+},
+
+{
+  yearMin: 2017,
+  yearMax: 2026,
+  make: "Audi",
+  models: [
+    "A3",
+    "A4",
+    "A5",
+    "A6",
+    "A7",
+    "A8",
+    "Q3",
+    "Q5",
+    "Q7",
+    "Q8"
+  ],
+  tool: "HU162 VAG2015",
+  keyway: "HU162T family",
+  vehicleFamily:
+    "VOLKSWAGEN / AUDI / VAG — mostly 2017+",
+  examples:
+    "Newer Audi applications after the HU66 generation.",
+  used: "Door / emergency key",
+  warning:
+    "HU162 has SC9, SC10 and other variants. Verify the exact side-cut version.",
+  confidence: "Verified family fitment"
+},
+
+{
+  yearMin: 1997,
+  yearMax: 2026,
+  make: "Mercedes-Benz",
+  models: [
+    "C-Class",
+    "E-Class",
+    "S-Class",
+    "GLK",
+    "GLC",
+    "GLE",
+    "GLS",
+    "ML",
+    "CLA",
+    "CLS",
+    "SL",
+    "SLK",
+    "Sprinter"
+  ],
+  tool: "HU64 V2",
+  keyway: "HU64",
+  vehicleFamily:
+    "MERCEDES-BENZ — mostly 1997+",
+  examples:
+    "Many Mercedes passenger cars, SUVs and Sprinter applications.",
+  used: "Door / emergency key",
+  warning:
+    "Older Mercedes can use HU39, HU23 and other mechanical systems.",
+  confidence: "Verified family fitment"
+},
+
+{
+  yearMin: 2000,
+  yearMax: 2026,
+  make: "Mazda",
+  models: [
+    "Mazda3",
+    "Mazda5",
+    "Mazda6",
+    "CX-3",
+    "CX-30",
+    "CX-5",
+    "CX-7",
+    "CX-9",
+    "CX-50",
+    "CX-90",
+    "MX-5"
+  ],
+  tool: "MAZ24R V2",
+  keyway: "MZ31 / MZ19 / MAZ24R",
+  vehicleFamily:
+    "MAZDA — mostly 2000s+",
+  examples:
+    "Mazda3, Mazda6, CX-series and MX-5 applications.",
+  used: "Door / ignition",
+  warning:
+    "Some older Ford-based Mazda vehicles use H75 / FO38 instead.",
+  confidence: "Verified family fitment"
+},
+
+{
+  yearMin: 2007,
+  yearMax: 2026,
+  make: "Mitsubishi",
+  models: [
+    "Lancer",
+    "Outlander",
+    "Outlander Sport",
+    "Eclipse Cross",
+    "Mirage"
+  ],
+  tool: "MIT11R",
+  keyway: "MIT3 / MIT11R",
+  vehicleFamily:
+    "MITSUBISHI — mostly 2007+",
+  examples:
+    "Lancer, Outlander, Outlander Sport, Eclipse Cross and related Mitsubishi applications.",
+  used: "Door / ignition",
+  warning:
+    "Older Mitsubishi applications can use MIT8, MIT9 or MIT6.",
+  confidence: "Verified family fitment"
+},
+
+{
+  yearMin: 2010,
+  yearMax: 2026,
+  make: "Chevrolet",
+  models: [
+    "Cruze",
+    "Equinox",
+    "Malibu",
+    "Camaro",
+    "Trax",
+    "Sonic",
+    "Spark",
+    "Traverse"
+  ],
+  tool: "HU100 V3",
+  keyway: "HU100",
+  vehicleFamily:
+    "CHEVROLET / GMC / BUICK / CADILLAC — mostly 2010s+",
+  examples:
+    "Modern GM high-security and emergency-key applications.",
+  used: "Door / emergency key",
+  warning:
+    "HU100 exists as both an 8-cut and 10-cut system. Confirm exact YMM.",
+  confidence:
+    "Verified family fitment — cut count still requires confirmation"
+},
+
+{
+  yearMin: 2014,
+  yearMax: 2018,
+  make: "Chevrolet",
+  models: [
+    "Silverado"
+  ],
+  tool: "HU100(10) V3",
+  keyway: "HU100 10-cut",
+  vehicleFamily:
+    "CHEVROLET / GMC — 2014–2018 Silverado / Sierra",
+  examples:
+    "Common GM 10-cut HU100 truck application.",
+  used: "Door / emergency key",
+  warning:
+    "Do not confuse this with the 8-cut HU100 tool.",
+  confidence: "Verified specific application"
+},
+
+{
+  yearMin: 2014,
+  yearMax: 2018,
+  make: "GMC",
+  models: [
+    "Sierra"
+  ],
+  tool: "HU100(10) V3",
+  keyway: "HU100 10-cut",
+  vehicleFamily:
+    "CHEVROLET / GMC — 2014–2018 Silverado / Sierra",
+  examples:
+    "Common GM 10-cut HU100 truck application.",
+  used: "Door / emergency key",
+  warning:
+    "Do not confuse this with the 8-cut HU100 tool.",
+  confidence: "Verified specific application"
+},
+
+{
+  yearMin: 2010,
+  yearMax: 2026,
+  make: "Ford",
+  models: [
+    "Focus",
+    "Fusion",
+    "Escape",
+    "Transit",
+    "Edge"
+  ],
+  tool: "HU101(10) V3",
+  keyway: "HU101",
+  vehicleFamily:
+    "FORD / LINCOLN / LAND ROVER / JAGUAR / SOME VOLVO — mostly 2010s+",
+  examples:
+    "Focus, Fusion, Escape, Transit and Edge.",
+  used: "Door / emergency key",
+  warning:
+    "Later Ford vehicles can move to HU198-family keyways.",
+  confidence: "Verified family fitment"
+},
+
+{
+  yearMin: 2010,
+  yearMax: 2026,
+  make: "Land Rover",
+  models: [
+    "LR2",
+    "LR3",
+    "LR4",
+    "Range Rover",
+    "Range Rover Sport",
+    "Discovery Sport",
+    "Evoque",
+    "Velar"
+  ],
+  tool: "HU101(10) V3",
+  keyway: "HU101",
+  vehicleFamily:
+    "LAND ROVER / RANGE ROVER — mostly 2010s+",
+  examples:
+    "Range Rover, Range Rover Sport, Evoque, Velar, Discovery Sport and related models.",
+  used: "Door / emergency key",
+  warning:
+    "Mechanical keyway is separate from KVM programming system.",
+  confidence: "Verified family fitment"
+},
+
+{
+  yearMin: 2010,
+  yearMax: 2026,
+  make: "Jaguar",
+  models: [
+    "XF",
+    "XJ",
+    "XE",
+    "F-Pace",
+    "F-Type"
+  ],
+  tool: "HU101(10) V3",
+  keyway: "HU101",
+  vehicleFamily:
+    "JAGUAR — mostly 2010s+",
+  examples:
+    "XF, XJ, XE, F-Pace and F-Type applications.",
+  used: "Door / emergency key",
+  warning:
+    "Older Jaguar vehicles can use different keyways.",
+  confidence: "Verified family fitment"
+},
+
+{
+  yearMin: 2010,
+  yearMax: 2026,
+  make: "Volvo",
+  models: [
+    "S60",
+    "S80",
+    "V50",
+    "V60",
+    "V70",
+    "XC60",
+    "XC70",
+    "XC90"
+  ],
+  tool: "HU101(10) V3",
+  keyway: "HU101",
+  vehicleFamily:
+    "VOLVO — mostly modern 2010s+ HU101 applications",
+  examples:
+    "S60, V60, XC60, XC90 and related Volvo applications.",
+  used: "Door / emergency key",
+  warning:
+    "Older Volvo vehicles can use HU56 or NE66.",
+  confidence: "Verified family fitment"
+},
+
+{
+  yearMin: 2020,
+  yearMax: 2026,
+  make: "Ford",
+  models: [
+    "F-150"
+  ],
+  tool: "HU198-4 DEPTHS",
+  keyway: "HU198 P-code 4-depth",
+  vehicleFamily:
+    "FORD F-150 / NEWER FORD TRUCKS — mostly 2020s+",
+  examples:
+    "Newer F-150 P-code applications.",
+  used: "Door / emergency key",
+  warning:
+    "Do not substitute older FO38 or HU101 tools.",
+  confidence: "Verified newer tool family"
+}
+
+];
+
+
+const lishiCatalog = [
+
+"FO38",
+"CY24",
+"CY24-CV",
+"CY24 TRUCK",
+
+"B106/GM37",
+"B111",
+"GM39",
+"GM45",
+
+"HON58R",
+"HON66",
+
+"HU58",
+"HU92",
+"HU92(10) V3",
+"HU100R V3",
+
+"HU100 V3 8-CUT",
+"HU100(10) V3 10-CUT",
+
+"HU101(10) V3",
+"HU101-V3-CUTOUT",
+"HU198-4 DEPTHS",
+"FORD 2017",
+
+"HU66 GEN 1&2",
+"HU66 V3",
+
+"HU162 VAG2015",
+"HU162-SC9",
+"HU162-SC10 V3",
+
+"HU64 V2",
+"HU39",
+"HU23",
+
+"HU43",
+"HU46",
+"HU49",
+
+"HYN11 V3",
+"HYN14R/HY15 V2",
+"HY16",
+"HY17/HYN15",
+"HY20",
+"HY22",
+"HYN7R",
+"HYN22",
+
+"K5 V3",
+"K9 V4",
+"IONIQ5",
+
+"NSN14 DR/BT",
+"NSN14 IGN V3",
+
+"TOY43",
+"TOY43AT DR/BT",
+"TOY43AT IGN",
+"TOY43R",
+"TOY48",
+"TOY2T",
+
+"MAZ24R V2",
+"MAZDA 2014",
+
+"MIT11R",
+"MIT8",
+"MIT9/MIT6",
+
+"NE38 V2 BOOT",
+"NE66AG",
+"NE71R V2",
+"NE72",
+"NE78",
+
+"VA2T",
+"VA6",
+"VAC102",
+
+"SIP22",
+"SX9",
+
+"YM23",
+"YM30",
+
+"ZD30",
+
+"BAOJUN",
+"BQSB",
+"BW9MH",
+"BYD01",
+"BYD01R",
+"CHAANGAN",
+"HAIMA",
+"QIRUI",
+
+"DAT12R",
+"DW04R V2",
+
+"ICF03",
+"SRT2018",
+
+"VOLVO-VNL 2024",
+"FB77",
+
+"HU181",
+
+"M4",
+"M18",
+
+"SC1",
+"SC4",
+"SC4-LFIC",
+"SC4-LFIC-L",
+
+"KW1",
+
+"B106 READER",
+"FO38 READER",
+"CY24 READER",
+"GM39 V3 READER",
+"HU66 READER",
+"HU92 READER",
+"NSN14 READER",
+
+"HON71 MOTORCYCLE READER",
+"KW14 V2 MOTORCYCLE READER",
+"SU14 V2 MOTORCYCLE READER",
+"YH35R V2 MOTORCYCLE READER",
+
+"BT01",
+"CH1",
+"CH1/DW05",
+"DAT17",
+
+"FO38 IGN",
+
+"GEELY",
+
+"GM37",
+"GM37 B106/B107",
+
+"GT10",
+"GT15",
+
+"HON66 IGN",
+"HON77 IGN",
+
+"HU100",
+"HU100 10",
+
+"HU100 IGN V3 8-CUT",
+"HU100 IGN V3 10-CUT",
+
+"HU101",
+"HU101 V3 IGN",
+
+"HU162-SC9 IGN",
+
+"HU39 IGN QL",
+"HU43 IGN",
+"HU46 IGN",
+"HU49 IGN",
+
+"HU58 IGN TL",
+
+"HU64",
+"HU64 IGN",
+"HU64 IGN V2",
+
+"HU66",
+"HU66 SL",
+"HU66 IGN SL",
+"HU66 IGN SL AG",
+"HU66 IGN TL",
+
+"HU71 IGN TL",
+
+"HU83",
+"HU83 AG",
+
+"HU87",
+"HU87 V2",
+
+"HU92 IGN SL",
+"HU92 IGN TL",
+
+"HY15",
+"HY17",
+"HY20R",
+
+"HYN11",
+"HYN11 HYN6 IGN",
+"HYN14 HY15",
+
+"KIA2018",
+"KIA3R",
+
+"LAGUNA3",
+
+"MAZ24",
+"MAZ24R IGN",
+
+"MIT11",
+"MIT11R IGN",
+"MIT8 IGN",
+
+"NE38",
+"NE66",
+"NE66 IGN",
+
+"NE71R V2 TL",
+"NE72 IGN"
+
+];
+
+
+const recentSearches = [];
+
+let currentMode = "ymm";
+
+
+const yearSelect =
+  document.getElementById("year");
+
+const makeSelect =
+  document.getElementById("make");
+
+const modelSelect =
+  document.getElementById("model");
+
+const resultBox =
+  document.getElementById("result");
+
+
+document.getElementById("toolCount").textContent =
+  lishiCatalog.length;
+
+
+function loadYears() {
+
+  let html = "";
+
+  for (let year = 2026; year >= 1980; year--) {
+
+    html += `<option value="${year}">
+      ${year}
+    </option>`;
+
+  }
+
+  yearSelect.innerHTML = html;
+
+  yearSelect.value = "2024";
+
+}
+
+
+function loadMakes() {
+
+  const year =
+    Number(yearSelect.value);
+
+  const makes =
+    [...new Set(
+      vehicleDatabase
+        .filter(
+          item =>
+            year >= item.yearMin &&
+            year <= item.yearMax
+        )
+        .map(
+          item =>
+            item.make
+        )
+    )]
+    .sort();
+
+
+  makeSelect.innerHTML =
+    makes
+      .map(
+        make =>
+          `<option value="${make}">
+            ${make}
+          </option>`
+      )
+      .join("");
+
+
+  loadModels();
+
+}
+
+
+function loadModels() {
+
+  const year =
+    Number(yearSelect.value);
+
+  const make =
+    makeSelect.value;
+
+
+  const models =
+    [...new Set(
+      vehicleDatabase
+        .filter(
+          item =>
+            year >= item.yearMin &&
+            year <= item.yearMax &&
+            item.make === make
+        )
+        .flatMap(
+          item =>
+            item.models
+        )
+    )]
+    .sort();
+
+
+  modelSelect.innerHTML =
+    models
+      .map(
+        model =>
+          `<option value="${model}">
+            ${model}
+          </option>`
+      )
+      .join("");
+
+}
+
+
+function showResult(item) {
+
+  resultBox.innerHTML = `
+
+    <span class="badge">
+      Recommended Lishi
+    </span>
+
+    <span class="badge">
+      ${item.confidence}
+    </span>
+
+    <div class="tool">
+      ${item.tool}
+    </div>
+
+    <div class="vehicle-line">
+      ${item.vehicleFamily}
+    </div>
+
+    <p>
+      ${item.examples}
+    </p>
+
+    <div class="facts">
+
+      <div class="fact">
+        <strong>
+          Keyway / Blank
+        </strong>
+
+        ${item.keyway}
+      </div>
+
+
+      <div class="fact">
+        <strong>
+          Where Used
+        </strong>
+
+        ${item.used}
+      </div>
+
+
+      <div class="fact">
+        <strong>
+          Database Years
+        </strong>
+
+        ${item.yearMin}–${item.yearMax}
+      </div>
+
+
+      <div class="fact">
+        <strong>
+          Beginner Memory
+        </strong>
+
+        ${item.vehicleFamily.split(" — ")[0]}
+        →
+        ${item.tool}
+      </div>
+
+    </div>
+
+
+    <div class="warning">
+
+      <strong>
+        Watch out:
+      </strong>
+
+      ${item.warning}
+
+    </div>
+
+  `;
+
+
+  resultBox.classList.add("show");
+
+}
+
+
+function showMatches(matches) {
+
+  if (matches.length === 0) {
+
+    resultBox.innerHTML = `
+
+      <div class="warning">
+
+        <strong>
+          No verified match found.
+        </strong>
+
+        <br><br>
+
+        That does not mean no Lishi exists.
+
+        Verify the exact keyway/application
+        before inserting a tool.
+
+      </div>
+
+    `;
+
+    resultBox.classList.add("show");
+
+    return;
+
+  }
+
+
+  if (matches.length === 1) {
+
+    showResult(matches[0]);
+
+    return;
+
+  }
+
+
+  resultBox.innerHTML = `
+
+    <div class="success">
+
+      <strong>
+        ${matches.length} possible matches found.
+      </strong>
+
+      <br>
+
+      Select the correct application below.
+
+    </div>
+
+
+    <div class="matches">
+
+      ${
+        matches.map(
+
+          (item,index) => `
+
+            <div class="match">
+
+              <strong>
+                ${item.tool}
+              </strong>
+
+              <div>
+                ${item.vehicleFamily}
+              </div>
+
+              <div class="tiny">
+                Keyway:
+                ${item.keyway}
+              </div>
+
+              <button
+                class="btn secondary"
+                data-result="${index}"
+              >
+
+                View details
+
+              </button>
+
+            </div>
+
+          `
+
+        ).join("")
+      }
+
+    </div>
+
+  `;
+
+
+  resultBox.classList.add("show");
+
+
+  resultBox
+    .querySelectorAll("[data-result]")
+    .forEach(
+
+      button => {
+
+        button.addEventListener(
+
+          "click",
+
+          () => {
+
+            const index =
+              Number(
+                button.dataset.result
+              );
+
+            showResult(
+              matches[index]
+            );
+
+          }
+
+        );
+
+      }
+
+    );
+
+}
+
+
+function searchYMM() {
+
+  const year =
+    Number(yearSelect.value);
+
+  const make =
+    makeSelect.value;
+
+  const model =
+    modelSelect.value;
+
+
+  const matches =
+    vehicleDatabase.filter(
+
+      item =>
+
+        year >= item.yearMin &&
+        year <= item.yearMax &&
+        item.make === make &&
+        item.models.includes(model)
+
+    );
+
+
+  recentSearches.unshift(
+    `${year} ${make} ${model}`
+  );
+
+
+  showMatches(matches);
+
+}
+
+
+function searchLishi() {
+
+  const query =
+    document
+      .getElementById("lishi")
+      .value
+      .trim()
+      .toLowerCase();
+
+
+  if (!query) return;
+
+
+  recentSearches.unshift(
+    `Lishi: ${query}`
+  );
+
+
+  const tools =
+    lishiCatalog.filter(
+
+      tool =>
+        tool.toLowerCase()
+          .includes(query)
+
+    );
+
+
+  const vehicleMatches =
+    vehicleDatabase.filter(
+
+      item =>
+        item.tool.toLowerCase()
+          .includes(query)
+
+    );
+
+
+  if (vehicleMatches.length) {
+
+    showMatches(vehicleMatches);
+
+    return;
+
+  }
+
+
+  resultBox.innerHTML = `
+
+    <div class="success">
+
+      <strong>
+        ${tools.length}
+        catalog match${tools.length === 1 ? "" : "es"}
+      </strong>
+
+    </div>
+
+
+    <div class="matches">
+
+      ${
+        tools.map(
+
+          tool => `
+
+            <div class="match">
+
+              <strong>
+                ${tool}
+              </strong>
+
+              <div class="tiny">
+
+                Tool exists in the Lishi catalog.
+
+                Exact YMM coverage still requires
+                application verification.
+
+              </div>
+
+            </div>
+
+          `
+
+        ).join("")
+      }
+
+    </div>
+
+  `;
+
+
+  resultBox.classList.add("show");
+
+}
+
+
+function searchKeyway() {
+
+  const query =
+    document
+      .getElementById("keyway")
+      .value
+      .trim()
+      .toLowerCase();
+
+
+  if (!query) return;
+
+
+  recentSearches.unshift(
+    `Keyway: ${query}`
+  );
+
+
+  const matches =
+    vehicleDatabase.filter(
+
+      item =>
+        item.keyway
+          .toLowerCase()
+          .includes(query)
+
+    );
+
+
+  showMatches(matches);
+
+}
+
+
+function quickSearch() {
+
+  const query =
+    document
+      .getElementById("quickSearch")
+      .value
+      .trim()
+      .toLowerCase();
+
+
+  if (!query) return;
+
+
+  recentSearches.unshift(
+    `Quick: ${query}`
+  );
+
+
+  const yearMatch =
+    query.match(
+      /\b(19|20)\d{2}\b/
+    );
+
+
+  const year =
+    yearMatch
+      ? Number(yearMatch[0])
+      : null;
+
+
+  const words =
+    query
+      .split(/\s+/)
+      .filter(
+        word =>
+          !/^\d{4}$/.test(word)
+      );
+
+
+  const matches =
+    vehicleDatabase.filter(
+
+      item => {
+
+        const text = [
+
+          item.make,
+
+          ...item.models,
+
+          item.tool,
+
+          item.keyway,
+
+          item.vehicleFamily,
+
+          item.examples
+
+        ]
+        .join(" ")
+        .toLowerCase();
+
+
+        const wordsMatch =
+          words.every(
+            word =>
+              text.includes(word)
+          );
+
+
+        const yearMatches =
+          !year ||
+          (
+            year >= item.yearMin &&
+            year <= item.yearMax
+          );
+
+
+        return (
+          wordsMatch &&
+          yearMatches
+        );
+
+      }
+
+    );
+
+
+  showMatches(matches);
+
+}
+
+
+function search() {
+
+  if (currentMode === "ymm") {
+
+    searchYMM();
+
+  }
+
+  else if (currentMode === "lishi") {
+
+    searchLishi();
+
+  }
+
+  else if (currentMode === "keyway") {
+
+    searchKeyway();
+
+  }
+
+  else {
+
+    quickSearch();
+
+  }
+
+}
+
+
+document
+  .querySelectorAll(".tab")
+  .forEach(
+
+    button => {
+
+      button.addEventListener(
+
+        "click",
+
+        () => {
+
+          currentMode =
+            button.dataset.mode;
+
+
+          document
+            .querySelectorAll(".tab")
+            .forEach(
+              item =>
+                item.classList.remove("active")
+            );
+
+
+          button.classList.add("active");
+
+
+          [
+            "ymm",
+            "lishi",
+            "keyway",
+            "quick"
+          ]
+          .forEach(
+
+            mode => {
+
+              document
+                .getElementById(
+                  `mode-${mode}`
+                )
+                .hidden =
+                  mode !== currentMode;
+
+            }
+
+          );
+
+
+          resultBox.classList.remove("show");
+
+        }
+
+      );
+
+    }
+
+  );
+
+
+yearSelect.addEventListener(
+  "change",
+  loadMakes
+);
+
+
+makeSelect.addEventListener(
+  "change",
+  loadModels
+);
+
+
+document
+  .getElementById("searchBtn")
+  .addEventListener(
+    "click",
+    search
+  );
+
+
+document
+  .getElementById("clearBtn")
+  .addEventListener(
+
+    "click",
+
+    () => {
+
+      document
+        .querySelectorAll("input")
+        .forEach(
+          input =>
+            input.value = ""
+        );
+
+
+      resultBox.classList.remove("show");
+
+    }
+
+  );
+
+
+document
+  .getElementById("recentBtn")
+  .addEventListener(
+
+    "click",
+
+    () => {
+
+      const recent =
+        recentSearches
+          .slice(0,8);
+
+
+      if (!recent.length) {
+
+        resultBox.innerHTML = `
+
+          <div class="warning">
+            No recent searches yet.
+          </div>
+
+        `;
+
+      }
+
+      else {
+
+        resultBox.innerHTML = `
+
+          <div class="success">
+
+            <strong>
+              Recent Searches
+            </strong>
+
+          </div>
+
+
+          <div class="matches">
+
+            ${
+              recent.map(
+
+                item => `
+
+                  <div class="match">
+                    ${item}
+                  </div>
+
+                `
+
+              ).join("")
+            }
+
+          </div>
+
+        `;
+
+      }
+
+
+      resultBox.classList.add("show");
+
+    }
+
+  );
+
+
+document
+  .querySelectorAll("[data-tool]")
+  .forEach(
+
+    button => {
+
+      button.addEventListener(
+
+        "click",
+
+        () => {
+
+          const tool =
+            button.dataset.tool;
+
+
+          const match =
+            vehicleDatabase.find(
+
+              item =>
+                item.tool === tool
+
+            );
+
+
+          if (match) {
+
+            showResult(match);
+
+          }
+
+        }
+
+      );
+
+    }
+
+  );
+
+
+document
+  .querySelectorAll(
+    "#lishi, #keyway, #quickSearch"
+  )
+  .forEach(
+
+    input => {
+
+      input.addEventListener(
+
+        "keydown",
+
+        event => {
+
+          if (event.key === "Enter") {
+
+            search();
+
+          }
+
+        }
+
+      );
+
+    }
+
+  );
+
+
+loadYears();
+loadMakes();
+
+</script>
+
+</body>
+</html>
