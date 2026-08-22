@@ -151,6 +151,29 @@
       margin: 0 6px 6px 0;
     }
 
+    .badge.exact {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.badge.split {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.badge.catalog {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.status-line {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
     .tool {
       font-size: 36px;
       font-weight: 900;
@@ -1094,6 +1117,492 @@ const vehicleDatabase = [
   warning:
     "Do not substitute older FO38 or HU101 tools.",
   confidence: "Verified newer tool family"
+},
+
+{
+  yearMin: 2000,
+  yearMax: 2016,
+  make: "Chrysler",
+  models: [
+    "200",
+    "300",
+    "Town & Country",
+    "Sebring",
+    "PT Cruiser",
+    "Pacifica"
+  ],
+  tool: "CY24",
+  keyway: "Y157 / Y159",
+  vehicleFamily:
+    "CHRYSLER / DODGE / JEEP — mostly 1994–2017",
+  examples:
+    "Chrysler 200, 300, Town & Country, Sebring, PT Cruiser and older Pacifica applications.",
+  used: "Door / ignition / trunk depending application",
+  warning:
+    "Later Fiat-based FCA vehicles can use different keyways such as SIP22.",
+  confidence: "Verified family fitment"
+},
+
+{
+  yearMin: 1994,
+  yearMax: 2017,
+  make: "Ram",
+  models: [
+    "1500",
+    "2500",
+    "3500"
+  ],
+  tool: "CY24",
+  keyway: "Y157 / Y159",
+  vehicleFamily:
+    "DODGE / RAM TRUCK — mostly 1994–2017",
+  examples:
+    "Older Ram 1500, 2500 and 3500 applications from the CY24 generation.",
+  used: "Door / ignition",
+  warning:
+    "Ram ProMaster is a different platform and can use SIP22-family keyways.",
+  confidence: "Verified family fitment"
+},
+
+{
+  yearMin: 2014,
+  yearMax: 2026,
+  make: "Ram",
+  models: [
+    "ProMaster"
+  ],
+  tool: "SIP22",
+  keyway: "SIP22",
+  vehicleFamily:
+    "RAM PROMASTER / FIAT-BASED FCA — mostly 2014+",
+  examples:
+    "Ram ProMaster and related Fiat-based commercial applications.",
+  used: "Door / emergency key",
+  warning:
+    "Do not assume CY24 just because the badge says Ram.",
+  confidence: "Verified family fitment"
+},
+
+{
+  yearMin: 1998,
+  yearMax: 2014,
+  make: "Subaru",
+  models: [
+    "Forester",
+    "Impreza",
+    "Legacy",
+    "Outback"
+  ],
+  tool: "NSN14 DR/BT",
+  keyway: "DA34 / NSN14",
+  vehicleFamily:
+    "SUBARU — selected older/mid-generation models",
+  examples:
+    "Selected Forester, Impreza, Legacy and Outback applications that share NSN14-family locks.",
+  used: "Door / trunk",
+  warning:
+    "Subaru uses several keyway families across model years; confirm exact blade before use.",
+  confidence: "Verified family fitment"
+},
+
+{
+  yearMin: 2015,
+  yearMax: 2026,
+  make: "Subaru",
+  models: [
+    "Forester",
+    "Impreza",
+    "Legacy",
+    "Outback",
+    "Crosstrek",
+    "Ascent",
+    "WRX"
+  ],
+  tool: "TOY2T",
+  keyway: "TOY2T / 80K family",
+  vehicleFamily:
+    "SUBARU / TOYOTA 2-TRACK — mostly mid-2010s+",
+  examples:
+    "Newer Subaru applications using Toyota-style 2-track / 80K-family mechanical keys.",
+  used: "Door / emergency key",
+  warning:
+    "Some Subaru models overlap other keyway families; verify physical blade and year split.",
+  confidence: "Verified family fitment"
+},
+
+{
+  yearMin: 1995,
+  yearMax: 2014,
+  make: "Hyundai",
+  models: [
+    "Accent",
+    "Elantra",
+    "Sonata",
+    "Santa Fe",
+    "Tucson",
+    "Azera",
+    "Veracruz"
+  ],
+  tool: "HYN11 V3",
+  keyway: "HYN11 family",
+  vehicleFamily:
+    "HYUNDAI — mostly older 1995–2014 generation",
+  examples:
+    "Older Accent, Elantra, Sonata, Santa Fe, Tucson, Azera and Veracruz applications.",
+  used: "Door / ignition",
+  warning:
+    "Hyundai used multiple overlapping keyways. Confirm HYN11 versus HYN14R/HY15/HY22 before insertion.",
+  confidence: "Verified family fitment"
+},
+
+{
+  yearMin: 2006,
+  yearMax: 2019,
+  make: "Hyundai",
+  models: [
+    "Elantra",
+    "Sonata",
+    "Santa Fe",
+    "Tucson",
+    "Genesis",
+    "Veloster",
+    "Equus"
+  ],
+  tool: "HYN14R/HY15 V2",
+  keyway: "HYN14R / HY15",
+  vehicleFamily:
+    "HYUNDAI — mostly 2006–2019 mid-generation",
+  examples:
+    "Mid-generation Hyundai Elantra, Sonata, Santa Fe, Tucson, Genesis, Veloster and Equus applications.",
+  used: "Door / emergency key",
+  warning:
+    "Check exact application because HYN11, HY22, K5 and newer systems overlap by model/year.",
+  confidence: "Verified family fitment"
+},
+
+{
+  yearMin: 2017,
+  yearMax: 2026,
+  make: "Hyundai",
+  models: [
+    "Accent",
+    "Elantra",
+    "Kona",
+    "Santa Fe",
+    "Tucson",
+    "Palisade",
+    "Sonata"
+  ],
+  tool: "K5 V3",
+  keyway: "K5 / KK12 family",
+  vehicleFamily:
+    "HYUNDAI / KIA — mostly 2017+ K5-family applications",
+  examples:
+    "Newer Accent, Elantra, Kona, Santa Fe, Tucson, Palisade and Sonata applications using K5-family blades.",
+  used: "Door / emergency key",
+  warning:
+    "Newest 2024+ vehicles may move to K9 or dedicated model tools such as Ioniq 5.",
+  confidence: "Verified family fitment"
+},
+
+{
+  yearMin: 2024,
+  yearMax: 2026,
+  make: "Hyundai",
+  models: [
+    "Santa Fe",
+    "Sonata",
+    "Kona",
+    "Tucson"
+  ],
+  tool: "K9 V4",
+  keyway: "K9",
+  vehicleFamily:
+    "HYUNDAI / KIA / GENESIS — mostly 2024+ K9 generation",
+  examples:
+    "Newest-generation Hyundai applications specifically using the K9 keyway.",
+  used: "Door / emergency key",
+  warning:
+    "Not every 2024+ Hyundai is K9. Verify exact blade/application before insertion.",
+  confidence: "Possible split"
+},
+
+{
+  yearMin: 2022,
+  yearMax: 2026,
+  make: "Hyundai",
+  models: [
+    "Ioniq 5"
+  ],
+  tool: "IONIQ5",
+  keyway: "Ioniq 5 / KK12-family application",
+  vehicleFamily:
+    "HYUNDAI IONIQ 5 — 2022+",
+  examples:
+    "Dedicated Ioniq 5 mechanical/emergency-key application.",
+  used: "Door / emergency key",
+  warning:
+    "Use the dedicated Ioniq 5 tool when the application calls for it; do not assume K5/K9.",
+  confidence: "Exact YMM"
+},
+
+{
+  yearMin: 1999,
+  yearMax: 2014,
+  make: "Kia",
+  models: [
+    "Rio",
+    "Spectra",
+    "Optima",
+    "Sorento",
+    "Sportage",
+    "Sedona"
+  ],
+  tool: "HYN14R/HY15 V2",
+  keyway: "HYN14R / HY15",
+  vehicleFamily:
+    "KIA — mostly older 1999–2014 generation",
+  examples:
+    "Older Rio, Spectra, Optima, Sorento, Sportage and Sedona applications.",
+  used: "Door / ignition",
+  warning:
+    "Kia uses several keyway generations; confirm exact blade before insertion.",
+  confidence: "Verified family fitment"
+},
+
+{
+  yearMin: 2017,
+  yearMax: 2026,
+  make: "Kia",
+  models: [
+    "Forte",
+    "Optima",
+    "K5",
+    "Sorento",
+    "Sportage",
+    "Soul",
+    "Seltos",
+    "Telluride",
+    "Carnival"
+  ],
+  tool: "K5 V3",
+  keyway: "K5 / KK12 family",
+  vehicleFamily:
+    "HYUNDAI / KIA — mostly 2017+ K5-family applications",
+  examples:
+    "Newer Forte, K5/Optima, Sorento, Sportage, Soul, Seltos, Telluride and Carnival applications using K5-family blades.",
+  used: "Door / emergency key",
+  warning:
+    "Newest 2024+ applications can move to K9; verify exact application.",
+  confidence: "Verified family fitment"
+},
+
+{
+  yearMin: 2024,
+  yearMax: 2026,
+  make: "Kia",
+  models: [
+    "K5",
+    "Sorento",
+    "Sportage",
+    "Telluride",
+    "Carnival"
+  ],
+  tool: "K9 V4",
+  keyway: "K9",
+  vehicleFamily:
+    "HYUNDAI / KIA / GENESIS — mostly 2024+ K9 generation",
+  examples:
+    "Newest-generation Kia applications specifically using the K9 keyway.",
+  used: "Door / emergency key",
+  warning:
+    "Not every 2024+ Kia is K9. Verify exact blade/application before insertion.",
+  confidence: "Possible split"
+},
+
+{
+  yearMin: 2017,
+  yearMax: 2026,
+  make: "Genesis",
+  models: [
+    "G70",
+    "G80",
+    "G90",
+    "GV60",
+    "GV70",
+    "GV80"
+  ],
+  tool: "K5 V3",
+  keyway: "K5 / KK12 family",
+  vehicleFamily:
+    "GENESIS — mostly 2017+ early/newer generation",
+  examples:
+    "Genesis G70, G80, G90 and GV-family applications using K5-family blades.",
+  used: "Door / emergency key",
+  warning:
+    "Newest Genesis models may use K9; verify exact application.",
+  confidence: "Verified family fitment"
+},
+
+{
+  yearMin: 2024,
+  yearMax: 2026,
+  make: "Genesis",
+  models: [
+    "G70",
+    "G80",
+    "G90",
+    "GV70",
+    "GV80"
+  ],
+  tool: "K9 V4",
+  keyway: "K9",
+  vehicleFamily:
+    "GENESIS — mostly 2024+ K9 generation",
+  examples:
+    "Newest Genesis applications specifically equipped with K9 keyway.",
+  used: "Door / emergency key",
+  warning:
+    "Possible production overlap with K5-family blades; verify exact blade.",
+  confidence: "Possible split"
+},
+
+{
+  yearMin: 2004,
+  yearMax: 2016,
+  make: "Chevrolet",
+  models: [
+    "Cobalt",
+    "HHR",
+    "Impala",
+    "Monte Carlo",
+    "Avalanche",
+    "Colorado"
+  ],
+  tool: "B111",
+  keyway: "B106 / B107 / B111 family",
+  vehicleFamily:
+    "GM — mostly 2005–2016 B111 generation",
+  examples:
+    "Cobalt, HHR, Impala, Monte Carlo, Avalanche and Colorado-era applications using the B111 family.",
+  used: "Door / trunk",
+  warning:
+    "B111 and B106/GM37 are related but warding/application differs.",
+  confidence: "Verified family fitment"
+},
+
+{
+  yearMin: 1995,
+  yearMax: 2009,
+  make: "Chevrolet",
+  models: [
+    "Cavalier",
+    "Malibu",
+    "Monte Carlo",
+    "S10",
+    "Tahoe",
+    "Suburban"
+  ],
+  tool: "GM39",
+  keyway: "B89 / B92 / B96 / B102 family",
+  vehicleFamily:
+    "OLDER GM — mostly 1990s–2000s",
+  examples:
+    "Older Chevrolet Cavalier, Malibu, Monte Carlo, S10, Tahoe and Suburban applications.",
+  used: "Door / ignition / trunk",
+  warning:
+    "Later GM moved to B106/B111 and then HU100.",
+  confidence: "Verified family fitment"
+},
+
+{
+  yearMin: 1995,
+  yearMax: 2009,
+  make: "Pontiac",
+  models: [
+    "Grand Am",
+    "Grand Prix",
+    "G6",
+    "Bonneville",
+    "Sunfire"
+  ],
+  tool: "GM39",
+  keyway: "B89 / B92 / B96 / B102 family",
+  vehicleFamily:
+    "OLDER GM — mostly 1990s–2000s",
+  examples:
+    "Pontiac Grand Am, Grand Prix, G6, Bonneville and Sunfire applications.",
+  used: "Door / ignition / trunk",
+  warning:
+    "Later GM generations use B106/B111 or HU100.",
+  confidence: "Verified family fitment"
+},
+
+{
+  yearMin: 1995,
+  yearMax: 2009,
+  make: "Oldsmobile",
+  models: [
+    "Alero",
+    "Aurora",
+    "Bravada",
+    "Cutlass",
+    "Intrigue",
+    "Silhouette"
+  ],
+  tool: "GM39",
+  keyway: "B89 / B92 / B96 / B102 family",
+  vehicleFamily:
+    "OLDER GM — mostly 1990s–2000s",
+  examples:
+    "Alero, Aurora, Bravada, Cutlass, Intrigue and Silhouette applications.",
+  used: "Door / ignition / trunk",
+  warning:
+    "Legacy GM family; verify exact warding.",
+  confidence: "Verified family fitment"
+},
+
+{
+  yearMin: 1990,
+  yearMax: 2015,
+  make: "Toyota",
+  models: [
+    "Tacoma",
+    "Tundra",
+    "Celica",
+    "MR2",
+    "Echo"
+  ],
+  tool: "TOY43",
+  keyway: "TR47 / TOY43",
+  vehicleFamily:
+    "OLDER TOYOTA / LEXUS — mostly 1990s–2000s",
+  examples:
+    "Older Tacoma, Tundra, Celica, MR2, Echo and related traditional edge-key applications.",
+  used: "Door / ignition",
+  warning:
+    "Many 2000s+ Toyota/Lexus vehicles use TOY48 instead.",
+  confidence: "Verified family fitment"
+},
+
+{
+  yearMin: 1997,
+  yearMax: 2009,
+  make: "Saab",
+  models: [
+    "9-3",
+    "9-5"
+  ],
+  tool: "YM30",
+  keyway: "YM30 / S32YS-P family",
+  vehicleFamily:
+    "SAAB — mostly older 1990s–2000s",
+  examples:
+    "Older Saab 9-3 and 9-5 mechanical applications.",
+  used: "Door / ignition",
+  warning:
+    "Later Saab/GM-era systems can differ.",
+  confidence: "Verified family fitment"
 }
 
 ];
@@ -1439,58 +1948,116 @@ function loadModels() {
 
 function showResult(item) {
 
+  const confidence =
+    (item.confidence || "")
+      .toLowerCase();
+
+  let confidenceClass = "";
+
+  if (confidence.includes("exact")) {
+    confidenceClass = "exact";
+  }
+  else if (
+    confidence.includes("split") ||
+    confidence.includes("possible")
+  ) {
+    confidenceClass = "split";
+  }
+  else if (
+    confidence.includes("catalog")
+  ) {
+    confidenceClass = "catalog";
+  }
+
+
+  const splitWarning =
+    confidenceClass === "split"
+      ? `
+        <div class="warning">
+          <strong>
+            Before inserting a tool:
+          </strong>
+
+          This vehicle may have more than one
+          mechanical key system.
+
+          Check the emergency blade,
+          lock profile, build date,
+          or another application reference
+          before using the Lishi.
+        </div>
+      `
+      : "";
+
+
   resultBox.innerHTML = `
 
-    <span class="badge">
-      Recommended Lishi
-    </span>
+    <div class="status-line">
 
-    <span class="badge">
-      ${item.confidence}
-    </span>
+      <span class="badge">
+        Recommended Lishi
+      </span>
+
+      <span class="badge ${confidenceClass}">
+        ${item.confidence}
+      </span>
+
+    </div>
+
 
     <div class="tool">
       ${item.tool}
     </div>
 
+
     <div class="vehicle-line">
       ${item.vehicleFamily}
     </div>
+
 
     <p>
       ${item.examples}
     </p>
 
+
     <div class="facts">
 
+
       <div class="fact">
+
         <strong>
           Keyway / Blank
         </strong>
 
         ${item.keyway}
+
       </div>
 
 
       <div class="fact">
+
         <strong>
           Where Used
         </strong>
 
         ${item.used}
+
       </div>
 
 
       <div class="fact">
+
         <strong>
           Database Years
         </strong>
 
         ${item.yearMin}–${item.yearMax}
+
       </div>
 
 
       <div class="fact">
+
         <strong>
           Beginner Memory
         </strong>
@@ -1498,9 +2065,14 @@ function showResult(item) {
         ${item.vehicleFamily.split(" — ")[0]}
         →
         ${item.tool}
+
       </div>
 
+
     </div>
+
+
+    ${splitWarning}
 
 
     <div class="warning">
