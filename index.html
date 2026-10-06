@@ -62,6 +62,9 @@
     </div>
   </div>
   <script>
+window.addEventListener('error',function(e){setTimeout(function(){var n=document.getElementById('recordCount');if(n&&n.textContent==='0'){n.textContent='APP ERROR';n.title=(e.message||'JavaScript startup error')+(e.lineno?' @ line '+e.lineno:'');console.error('Metro Lishi startup error:',e.error||e.message);}},0);});
+</script>
+<script>
   (()=>{const root=document.getElementById('lishi-app');if(root.dataset.ready)return;root.dataset.ready='1';
   const db=[
     {yearMin:1996,yearMax:2014,make:'Ford',models:['F-150','Ranger','Explorer','Expedition','Mustang','Focus','Crown Victoria','E-Series'],tool:'FO38',vehicle:'FORD / LINCOLN / MERCURY — mostly 1996–2014',examples:'Older F-150, Ranger, Explorer, Expedition, Mustang, Focus, Crown Victoria, E-Series; some Mazda.',keyway:'H75',used:'Ignition / door / trunk depending application',warning:'Newer Ford can use HU101 or HU198. Do not choose FO38 only because the vehicle is a Ford.',verified:'Verified family fitment'},
@@ -306,13 +309,15 @@
   if(location.hash.startsWith('#owner=')&&ownerHash(decodeURIComponent(location.hash.slice(7)))===ownerHashValue){localStorage.setItem('lishiOwnerMode','1');history.replaceState(null,'',location.pathname+location.search);}
   if(location.hash==='#owner-off'){localStorage.removeItem('lishiOwnerMode');history.replaceState(null,'',location.pathname+location.search);}
   const ownerMode=localStorage.getItem('lishiOwnerMode')==='1';
-  const shopConfirmed=new Set(JSON.parse(localStorage.getItem('lishiShopConfirmed')||'[]'));
-  const verifyQueue=new Set(JSON.parse(localStorage.getItem('lishiVerifyQueue')||'[]'));
-  const userFlags=new Set(JSON.parse(localStorage.getItem('lishiUserFlags')||'[]'));
-  const entryFlags=new Set(JSON.parse(localStorage.getItem('lishiEntryFlags')||'[]'));
-  const inventoryStatus=JSON.parse(localStorage.getItem('lishiInventoryStatus')||'{}');
-  const inventoryDetails=JSON.parse(localStorage.getItem('lishiInventoryDetails')||'{}');
-  const shopNotes=JSON.parse(localStorage.getItem('lishiShopNotes')||'{}');
+  function safeArray(key){try{const v=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(v)?v:[];}catch(e){console.warn('Resetting invalid local data:',key);return [];}}
+  function safeObject(key){try{const v=JSON.parse(localStorage.getItem(key)||'{}');return v&&typeof v==='object'&&!Array.isArray(v)?v:{};}catch(e){console.warn('Resetting invalid local data:',key);return {};}}
+  const shopConfirmed=new Set(safeArray('lishiShopConfirmed'));
+  const verifyQueue=new Set(safeArray('lishiVerifyQueue'));
+  const userFlags=new Set(safeArray('lishiUserFlags'));
+  const entryFlags=new Set(safeArray('lishiEntryFlags'));
+  const inventoryStatus=safeObject('lishiInventoryStatus');
+  const inventoryDetails=safeObject('lishiInventoryDetails');
+  const shopNotes=safeObject('lishiShopNotes');
   let metroYmm=[];
   try{metroYmm=JSON.parse(localStorage.getItem('lishiMetroYmm')||'[]');if(!Array.isArray(metroYmm))metroYmm=[];}catch(e){metroYmm=[];}
   function saveMetroYmm(){localStorage.setItem('lishiMetroYmm',JSON.stringify(metroYmm));}
