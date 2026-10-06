@@ -79,6 +79,54 @@
       #lishi-app .verify{font-size:14px}
     }
     @media(max-width:440px){#lishi-app .answer-grid{grid-template-columns:1fr}#lishi-app .hero .tiny:last-child{display:none}}
+    /* Full structural visual redesign */
+    #lishi-app{background:linear-gradient(180deg,#eef2f6 0,#f7f8fa 320px);padding-top:22px}
+    #lishi-app .wrap{max-width:1120px}
+    #lishi-app .hero{position:relative;overflow:hidden;padding:18px 22px;margin-bottom:14px;border-radius:16px;background:linear-gradient(115deg,#101b2d 0%,#172a45 72%,#203958 100%)}
+    #lishi-app .hero:after{content:"";position:absolute;width:220px;height:220px;border-radius:50%;right:-90px;top:-120px;background:rgba(247,189,34,.13)}
+    #lishi-app .panel{padding:0;overflow:hidden;border-radius:16px}
+    #lishi-app #lookupScreen{padding:22px}
+    #lishi-app #resultScreen{padding:0!important;background:#fff}
+    #lishi-app #resultScreen>.actions{margin:0!important;padding:13px 18px;border-bottom:1px solid #e7ebef;background:#fafbfc}
+    #lishi-app #resultScreen>.screen-title{display:none}
+    #lishi-app #result{padding:22px 24px 26px}
+    #lishi-app .result .statusline{margin:0 0 10px}
+    #lishi-app .answer-grid{position:relative;display:grid;grid-template-columns:1.45fr .75fr;gap:0;margin:0 0 0;border:1px solid #dfe5eb;border-radius:16px;overflow:hidden;background:#fff}
+    #lishi-app .answer-card,#lishi-app .answer-card:first-child{min-height:132px;border:0;border-radius:0;padding:22px 24px;background:#fff}
+    #lishi-app .answer-card:first-child{background:linear-gradient(135deg,#152238,#1e3452);color:#fff}
+    #lishi-app .answer-card+ .answer-card{border-left:1px solid #e2e7ec;background:#f7f9fb}
+    #lishi-app .answer-card:first-child .answer-label{color:#f4c84b}
+    #lishi-app .answer-value{font-size:clamp(27px,3vw,40px);letter-spacing:-.04em}
+    #lishi-app .use-line{margin:0;padding:18px 24px 3px;border-left:1px solid #dfe5eb;border-right:1px solid #dfe5eb;font-size:19px;background:#fff}
+    #lishi-app .use-line+p{padding:0 24px 18px;border:0;border-left:1px solid #dfe5eb;border-right:1px solid #dfe5eb;border-bottom:1px solid #dfe5eb;border-radius:0 0 16px 16px;background:#fff}
+    #lishi-app .verify{display:inline-flex;margin:14px 0 0;padding:8px 11px;border:0;border-radius:8px;background:#e9f8ef;font-size:13px}
+    #lishi-app .entry{position:relative;margin-top:14px;padding:14px 16px;background:#f7f9fb;border:1px solid #e2e7ec;border-radius:12px}
+    #lishi-app .entry .statusline{margin-bottom:2px}
+    #lishi-app .entry .facts{grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;margin-top:9px}
+    #lishi-app .entry .fact{padding-top:9px;font-size:13px}
+    #lishi-app .entry .actions{position:absolute;right:12px;top:10px;margin:0}
+    #lishi-app .entry .actions .btn{min-height:32px;padding:6px 10px;font-size:11px}
+    #lishi-app .warn{font-size:13px;padding:10px 12px;margin-top:12px;border-radius:9px}
+    #lishi-app .result>.facts{grid-template-columns:1fr 1fr;margin-top:12px}
+    #lishi-app .result>.facts .fact{padding:10px 12px;border:1px solid #e5e9ee;border-radius:9px;background:#fafbfc}
+    #lishi-app .result>.actions{margin-top:12px}
+    #lishi-app .result>.actions .btn{min-height:36px;padding:8px 12px;font-size:12px}
+    #lishi-app .result>.tiny{margin-top:9px!important}
+    #lishi-app .badge{font-size:9px;padding:5px 8px}
+    #lishi-app .tabs{border:1px solid #e1e6eb;background:#f4f6f8}
+    #lishi-app .grid3{gap:14px}
+    @media(max-width:760px){
+      #lishi-app .answer-grid{grid-template-columns:1fr}
+      #lishi-app .answer-card+ .answer-card{border-left:0;border-top:1px solid #e2e7ec}
+      #lishi-app .answer-card,#lishi-app .answer-card:first-child{min-height:100px}
+      #lishi-app .entry .facts{grid-template-columns:1fr 1fr}
+      #lishi-app .entry .actions{position:static;margin-top:10px}
+    }
+    @media(max-width:480px){
+      #lishi-app #result{padding:16px}
+      #lishi-app .entry .facts,#lishi-app .result>.facts{grid-template-columns:1fr}
+      #lishi-app #resultScreen>.actions{padding:10px}
+    }
   </style>
   <div class="wrap">
     <div class="hero">
