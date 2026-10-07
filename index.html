@@ -710,14 +710,26 @@ window.addEventListener('error',function(e){setTimeout(function(){var n=document
   }
   function programmingMatches(v){
     if(!referenceHub.ready||!v)return[];
-    const rows=(referenceHub.programming?.rows||[]).filter(r=>normRef(r.make)===normRef(v.make)&&normRef(r.model)===normRef(v.model)&&String(r.year)===String(v.year));
+    const raw=Array.isArray(referenceHub.programming?.rows)?referenceHub.programming.rows:[];
+    const rows=raw.filter(r=>normRef(r.make)===normRef(v.make)&&normRef(r.model)===normRef(v.model)&&String(r.year)===String(v.year));
     const merged=new Map();
-    for(const r of rows){
+    for(const rawRow of rows){
+      const r={
+        ...rawRow,
+        ignition:rawRow.ignition??rawRow.ignitionType??'',
+        system:rawRow.system??rawRow.immobilizerSystem??'',
+        method:rawRow.method??rawRow.programMethod??'',
+        pin:rawRow.pin??rawRow.requiresPin??false,
+        bypass:rawRow.bypass??rawRow.requiresBypass??false,
+        online:rawRow.online??rawRow.requiresOnline??false,
+        akl:rawRow.akl??rawRow.allKeysLostSupported,
+        source:rawRow.source??rawRow.sourceFile??''
+      };
       const k=[normRef(r.ignition),normRef(r.system),normRef(r.method),r.pin?'1':'0',r.bypass?'1':'0',r.online?'1':'0',String(r.akl)].join('|');
-      if(!merged.has(k))merged.set(k,{...r,sources:new Set(),notesSet:new Set()});
-      const m=merged.get(k); if(r.source)m.sources.add(r.source); if(r.notes)m.notesSet.add(r.notes);
+      if(!merged.has(k))merged.set(k,{row:r,sources:new Set(),notes:new Set()});
+      const m=merged.get(k);if(r.source)m.sources.add(String(r.source));if(r.notes)m.notes.add(String(r.notes));
     }
-    return [...merged.values()].map(r=>({...r,source:[...r.sources].join(', '),notes:[...r.notesSet].join(' · ')}));
+    return [...merged.values()].map(m=>({...m.row,source:[...m.sources].join(', '),notes:[...m.notes].join(' · ')}));
   }
 
   function refBadge(label,tone='cyan'){
@@ -725,26 +737,27 @@ window.addEventListener('error',function(e){setTimeout(function(){var n=document
     return '<span style="display:inline-flex;padding:4px 8px;border-radius:999px;background:'+map[tone]+';border:1px solid rgba(255,255,255,.1);font-size:11px;font-weight:800;letter-spacing:.04em">'+escapeRef(label)+'</span>';
   }
   function renderReferenceHubDetails(x){
-    const v=currentReferenceVehicle(x); if(!v)return'';
+    const v=currentReferenceVehicle(x);if(!v)return'';
     if(!referenceHub.ready)return '<div class="note" style="margin-top:10px">Loading expanded Metro reference data…</div>';
-    const lm=masterLishiMatches(v), hist=shopHistoryMatches(v), prog=programmingMatches(v);
-    const exact=lm.length?lm.map(a=>a.canonical||a.toolFromPdf).filter(Boolean):[];
+    let lm=[],hist=[],prog=[],errors=[];
+    try{lm=masterLishiMatches(v);}catch(err){errors.push('Lishi master');console.error(err);}
+    try{hist=shopHistoryMatches(v);}catch(err){errors.push('shop history');console.error(err);}
+    try{prog=programmingMatches(v);}catch(err){errors.push('programming');console.error(err);}
+    const exact=lm.map(a=>a.canonical||a.toolFromPdf).filter(Boolean);
     const histTools=hist.map(h=>h.latestProgrammerHint).filter(Boolean);
     const evidence=hist.length?hist.map(h=>escapeRef(h.year+' '+h.make+' '+h.model+(h.trim?' · '+h.trim:'')+(h.latestProgrammerHint?' · '+h.latestProgrammerHint:''))).join('<br>'):'No exact-YMM shop-history record imported.';
     return '<div style="margin-top:12px;padding:14px;border:1px solid rgba(34,211,238,.22);border-radius:14px;background:rgba(7,18,31,.72)">'+
-      '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:9px">'+
-      refBadge('REFERENCE HUB v2')+
+      '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:9px">'+refBadge('REFERENCE HUB v2')+
       (exact.length?refBadge('MASTER LISHI MATCH','green'):refBadge('NO EXACT MASTER MATCH','yellow'))+
-      (hist.length?refBadge(hist.length+' SHOP RECORD'+(hist.length===1?'':'S'),'green'):refBadge('NO SHOP HISTORY','yellow'))+
-      '</div>'+
+      (hist.length?refBadge(hist.length+' SHOP RECORD'+(hist.length===1?'':'S'),'green'):refBadge('NO SHOP HISTORY','yellow'))+'</div>'+
+      (errors.length?'<div class="warn" style="margin-bottom:10px"><strong>Some reference sources unavailable:</strong> '+escapeRef(errors.join(', '))+'</div>':'')+
       '<div style="font-size:12px;opacity:.72;margin-bottom:4px">MASTER LISHI REFERENCE</div>'+
       '<div style="font-weight:800">'+(exact.length?escapeRef([...new Set(exact)].join(' · ')):'No exact YMM application in imported master reference — do not infer a tool.')+'</div>'+
-      (lm.length?'<div style="font-size:12px;opacity:.7;margin-top:5px">'+escapeRef(lm.map(a=>a.yearsText||[a.yearStart,a.yearEnd].filter(Boolean).join('–')).filter(Boolean).join(' · '))+'</div>':'')+
-      '<div style="font-size:12px;opacity:.72;margin:12px 0 4px">PROGRAMMING REFERENCE</div>'+ (prog.length?prog.map(p=>'<div style="font-size:13px;line-height:1.55"><b>'+escapeRef(p.system||'System not named')+'</b> · '+escapeRef(p.method||'method not listed')+' · '+escapeRef(p.ignition||'')+(p.online?' · online/security access':'')+(p.pin?' · PIN required':'')+(p.bypass?' · bypass required':'')+(p.akl===true?' · AKL supported':p.akl===false?' · AKL not listed as supported':'')+(p.notes?' · '+escapeRef(p.notes):'')+'</div>').join(''):'<div style="font-size:13px">No exact-YMM programming row imported — verify current tool/OEM coverage.</div>')+'<div style="font-size:12px;opacity:.72;margin:12px 0 4px">METRO / KEYFORGE SHOP HISTORY</div>'+
-      '<div style="font-size:13px;line-height:1.55">'+evidence+'</div>'+
+      '<div style="font-size:12px;opacity:.72;margin:12px 0 4px">PROGRAMMING REFERENCE</div>'+
+      (prog.length?prog.map(p=>'<div style="font-size:13px;line-height:1.55"><b>'+escapeRef(p.system||'System not named')+'</b> · '+escapeRef(p.method||'method not listed')+(p.ignition?' · '+escapeRef(p.ignition):'')+(p.online?' · online/security access':'')+(p.pin?' · PIN required':'')+(p.bypass?' · bypass required':'')+(p.akl===true?' · AKL supported':p.akl===false?' · AKL not listed as supported':'')+(p.notes?' · '+escapeRef(p.notes):'')+'</div>').join(''):'<div style="font-size:13px">No exact-YMM programming row imported — verify current tool/OEM coverage.</div>')+
+      '<div style="font-size:12px;opacity:.72;margin:12px 0 4px">METRO / KEYFORGE SHOP HISTORY</div><div style="font-size:13px;line-height:1.55">'+evidence+'</div>'+
       (histTools.length?'<div style="margin-top:6px;font-size:12px">Recorded programmer hints: <b>'+escapeRef([...new Set(histTools)].join(' · '))+'</b></div>':'')+
-      '<div style="margin-top:10px;font-size:11px;opacity:.62">Imported reference data supports the lookup; it does not silently replace the core Lishi recommendation. Verify exact key identifiers and current programmer coverage before production use.</div>'+
-    '</div>';
+      '<div style="margin-top:10px;font-size:11px;opacity:.62">Imported reference data supports the lookup; it does not silently replace the core Lishi recommendation. Verify exact key identifiers and current programmer coverage before production use.</div></div>';
   }
 
   function referenceSearch(q){
