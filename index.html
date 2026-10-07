@@ -676,6 +676,7 @@ window.addEventListener('error',function(e){setTimeout(function(){var n=document
   loadReferenceHub();
 
   function normRef(v){return String(v||'').trim().toLowerCase().replace(/[^a-z0-9]/g,'');}
+  function escapeRef(v){return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\"/g,'&quot;');}
   function yearFitsRef(a,y){
     const n=Number(y); if(!n)return true;
     if(a.yearStart!=null&&n<Number(a.yearStart))return false;
@@ -708,7 +709,7 @@ window.addEventListener('error',function(e){setTimeout(function(){var n=document
 
   function refBadge(label,tone='cyan'){
     const map={cyan:'rgba(34,211,238,.14)',green:'rgba(34,197,94,.14)',yellow:'rgba(250,204,21,.14)',red:'rgba(248,113,113,.14)'};
-    return '<span style="display:inline-flex;padding:4px 8px;border-radius:999px;background:'+map[tone]+';border:1px solid rgba(255,255,255,.1);font-size:11px;font-weight:800;letter-spacing:.04em">'+esc(label)+'</span>';
+    return '<span style="display:inline-flex;padding:4px 8px;border-radius:999px;background:'+map[tone]+';border:1px solid rgba(255,255,255,.1);font-size:11px;font-weight:800;letter-spacing:.04em">'+escapeRef(label)+'</span>';
   }
   function renderReferenceHubDetails(x){
     const v=currentReferenceVehicle(x); if(!v)return'';
@@ -716,7 +717,7 @@ window.addEventListener('error',function(e){setTimeout(function(){var n=document
     const lm=masterLishiMatches(v), hist=shopHistoryMatches(v), prog=programmingMatches(v);
     const exact=lm.length?lm.map(a=>a.canonical||a.toolFromPdf).filter(Boolean):[];
     const histTools=hist.map(h=>h.latestProgrammerHint).filter(Boolean);
-    const evidence=hist.length?hist.map(h=>esc(h.year+' '+h.make+' '+h.model+(h.trim?' · '+h.trim:'')+(h.latestProgrammerHint?' · '+h.latestProgrammerHint:''))).join('<br>'):'No exact-YMM shop-history record imported.';
+    const evidence=hist.length?hist.map(h=>escapeRef(h.year+' '+h.make+' '+h.model+(h.trim?' · '+h.trim:'')+(h.latestProgrammerHint?' · '+h.latestProgrammerHint:''))).join('<br>'):'No exact-YMM shop-history record imported.';
     return '<div style="margin-top:12px;padding:14px;border:1px solid rgba(34,211,238,.22);border-radius:14px;background:rgba(7,18,31,.72)">'+
       '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:9px">'+
       refBadge('REFERENCE HUB v2')+
@@ -724,11 +725,11 @@ window.addEventListener('error',function(e){setTimeout(function(){var n=document
       (hist.length?refBadge(hist.length+' SHOP RECORD'+(hist.length===1?'':'S'),'green'):refBadge('NO SHOP HISTORY','yellow'))+
       '</div>'+
       '<div style="font-size:12px;opacity:.72;margin-bottom:4px">MASTER LISHI REFERENCE</div>'+
-      '<div style="font-weight:800">'+(exact.length?esc([...new Set(exact)].join(' · ')):'No exact YMM application in imported master reference — do not infer a tool.')+'</div>'+
-      (lm.length?'<div style="font-size:12px;opacity:.7;margin-top:5px">'+esc(lm.map(a=>a.yearsText||[a.yearStart,a.yearEnd].filter(Boolean).join('–')).filter(Boolean).join(' · '))+'</div>':'')+
-      '<div style="font-size:12px;opacity:.72;margin:12px 0 4px">PROGRAMMING REFERENCE</div>'+ (prog.length?prog.map(p=>'<div style="font-size:13px;line-height:1.55"><b>'+esc(p.system||'System not named')+'</b> · '+esc(p.method||'method not listed')+' · '+esc(p.ignition||'')+(p.online?' · online/security access':'')+(p.pin?' · PIN required':'')+(p.bypass?' · bypass required':'')+(p.akl===true?' · AKL supported':p.akl===false?' · AKL not listed as supported':'')+(p.notes?' · '+esc(p.notes):'')+'</div>').join(''):'<div style="font-size:13px">No exact-YMM programming row imported — verify current tool/OEM coverage.</div>')+'<div style="font-size:12px;opacity:.72;margin:12px 0 4px">METRO / KEYFORGE SHOP HISTORY</div>'+
+      '<div style="font-weight:800">'+(exact.length?escapeRef([...new Set(exact)].join(' · ')):'No exact YMM application in imported master reference — do not infer a tool.')+'</div>'+
+      (lm.length?'<div style="font-size:12px;opacity:.7;margin-top:5px">'+escapeRef(lm.map(a=>a.yearsText||[a.yearStart,a.yearEnd].filter(Boolean).join('–')).filter(Boolean).join(' · '))+'</div>':'')+
+      '<div style="font-size:12px;opacity:.72;margin:12px 0 4px">PROGRAMMING REFERENCE</div>'+ (prog.length?prog.map(p=>'<div style="font-size:13px;line-height:1.55"><b>'+escapeRef(p.system||'System not named')+'</b> · '+escapeRef(p.method||'method not listed')+' · '+escapeRef(p.ignition||'')+(p.online?' · online/security access':'')+(p.pin?' · PIN required':'')+(p.bypass?' · bypass required':'')+(p.akl===true?' · AKL supported':p.akl===false?' · AKL not listed as supported':'')+(p.notes?' · '+escapeRef(p.notes):'')+'</div>').join(''):'<div style="font-size:13px">No exact-YMM programming row imported — verify current tool/OEM coverage.</div>')+'<div style="font-size:12px;opacity:.72;margin:12px 0 4px">METRO / KEYFORGE SHOP HISTORY</div>'+
       '<div style="font-size:13px;line-height:1.55">'+evidence+'</div>'+
-      (histTools.length?'<div style="margin-top:6px;font-size:12px">Recorded programmer hints: <b>'+esc([...new Set(histTools)].join(' · '))+'</b></div>':'')+
+      (histTools.length?'<div style="margin-top:6px;font-size:12px">Recorded programmer hints: <b>'+escapeRef([...new Set(histTools)].join(' · '))+'</b></div>':'')+
       '<div style="margin-top:10px;font-size:11px;opacity:.62">Imported reference data supports the lookup; it does not silently replace the core Lishi recommendation. Verify exact key identifiers and current programmer coverage before production use.</div>'+
     '</div>';
   }
