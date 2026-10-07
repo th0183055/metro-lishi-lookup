@@ -96,7 +96,7 @@
     #lishi-app .answer-card:first-child{background:linear-gradient(135deg,#152238,#1e3452);color:#fff}
     #lishi-app .answer-card+ .answer-card{border-left:1px solid #e2e7ec;background:#f7f9fb}
     #lishi-app .answer-card:first-child .answer-label{color:#f4c84b}
-    #lishi-app .answer-value{font-size:clamp(27px,3vw,40px);letter-spacing:-.04em}
+    #lishi-app .answer-value{font-size:clamp(21px,2.2vw,30px);letter-spacing:-.04em}
     #lishi-app .use-line{margin:0;padding:18px 24px 3px;border-left:1px solid #dfe5eb;border-right:1px solid #dfe5eb;font-size:19px;background:#fff}
     #lishi-app .use-line+p{padding:0 24px 18px;border:0;border-left:1px solid #dfe5eb;border-right:1px solid #dfe5eb;border-bottom:1px solid #dfe5eb;border-radius:0 0 16px 16px;background:#fff}
     #lishi-app .verify{display:inline-flex;margin:14px 0 0;padding:8px 11px;border:0;border-radius:8px;background:#e9f8ef;font-size:13px}
@@ -185,14 +185,14 @@
     #lishi-app .result-sub{margin-top:5px;color:#9db2c4;font-size:14px}
     #lishi-app .result-badges{margin-top:18px}
     #lishi-app .tool-command{display:grid;grid-template-columns:1.45fr .75fr;background:#fff;color:#111827;box-shadow:0 22px 60px rgba(0,0,0,.22)}
-    #lishi-app .tool-main,#lishi-app .tool-side{padding:34px 36px}
+    #lishi-app .tool-main,#lishi-app .tool-side{padding:24px 28px}
     #lishi-app .tool-main{position:relative;background:linear-gradient(135deg,#f7bd22,#ffd45a);overflow:hidden}
     #lishi-app .tool-main:after{content:"M";position:absolute;right:18px;bottom:-50px;font-size:190px;font-weight:1000;color:rgba(17,24,39,.055)}
     #lishi-app .tool-side{background:#f6f8fb;border-left:1px solid #dfe5eb}
     #lishi-app .command-label{display:block;font-size:10px;font-weight:900;letter-spacing:.18em;color:#53606d}
-    #lishi-app .command-tool{position:relative;z-index:1;margin-top:7px;font-size:clamp(36px,5.2vw,68px);font-weight:950;letter-spacing:-.055em;line-height:.98;color:#101827}
+    #lishi-app .command-tool{position:relative;z-index:1;margin-top:7px;font-size:clamp(28px,3.4vw,44px);font-weight:950;letter-spacing:-.055em;line-height:.98;color:#101827}
     #lishi-app .command-keyway{margin-top:8px;font-size:clamp(27px,3vw,40px);font-weight:900;letter-spacing:-.04em;line-height:1.05}
-    #lishi-app .command-check{position:relative;z-index:1;margin-top:18px;font-size:13px;font-weight:800;color:#30404c}
+    #lishi-app .command-check{position:relative;z-index:1;margin-top:11px;font-size:13px;font-weight:800;color:#30404c}
     #lishi-app .command-meta{margin-top:12px;font-size:12px;color:#74808c}
     #lishi-app .result-dashboard{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(250px,.65fr);gap:14px;padding:14px;background:#07111d;border-radius:0 0 20px 20px;border:1px solid rgba(0,168,255,.16);border-top:0}
     #lishi-app .dash-main,#lishi-app .dash-side{background:#0b1b2b;border:1px solid rgba(151,184,211,.14);border-radius:14px;padding:20px}
@@ -226,6 +226,9 @@
     #lishi-app #lookupScreen>.actions{position:relative;z-index:20;pointer-events:auto}
     #lishi-app #lookupScreen>.actions .btn{position:relative;z-index:21;pointer-events:auto}
     #lishi-app.results-mode #resultScreen{display:block!important;pointer-events:auto}
+
+    #lishi-app .common-part-row{padding:6px 0;border-bottom:1px solid rgba(151,184,211,.12);font-size:13px;font-weight:700;line-height:1.4}
+    #lishi-app .common-part-row:last-child{border-bottom:0}
 </style>
   <div class="wrap">
     <div class="hero">
@@ -588,6 +591,17 @@ window.addEventListener('error',function(e){setTimeout(function(){var n=document
     {yearMin:2024,yearMax:2024,make:'Ford',models:['Expedition'],system:'Late Ford Expedition duplicate-key system',keys:'Confirm FCC/frequency, board, button layout and emergency blade before selecting the key.',programmers:'FDRS is the shop-proven path in KeyForge reference history.',tools:'PCP · battery support · authorized key-code/origination workflow',verify:'FCC / frequency · emergency blade · FDRS access · key-code source',notes:'Reference history records PCP + FDRS on a completed 2024 Expedition job.'},
     {yearMin:2025,yearMax:2026,make:'Toyota',models:['Camry'],system:'Late Toyota hybrid proximity system',keys:'Confirm hybrid/prox compatibility, FCC/board, button layout and emergency insert.',programmers:'TIS / Techstream path or coverage-verified Toyota-capable programmer.',tools:'Battery maintainer · Toyota coverage-verified programmer · insert/keyway verification tools',verify:'FCC / board · emergency insert · hybrid/prox compatibility · security/online access',notes:'Treat EEPROM/bench work as an advanced fallback, not the first path.'}
   ];
+  const metroFieldReference=[
+    {yearMin:2026,yearMax:2026,make:'Nissan',models:['Altima'],
+      system:'Nissan Intelligent Key / late Altima proximity system',
+      keys:'Metro completed two 2026 Altima jobs. Confirm FCC/frequency, button layout and emergency blade before ordering.',
+      programmers:'Aftermarket OBD path is field-supported across nearby/current Altima work. Metro calendar records PCP on 2019–2021 Altimas and Smart Pro on a 2020 Altima; the programmer used on the two exact 2026 jobs was not recorded. Verify current exact-YMM coverage on IM608 / Smart Pro / AutoProPAD before programming.',
+      tools:'Aftermarket OBD programmer · battery support · exact emergency-blade verification',
+      verify:'Exact FCC/frequency · button layout · emergency blade/keyway · current programmer software coverage',
+      notes:'Metro field evidence: completed 2026 Altimas on 2026-06-11 and 2026-09-28. Do not infer programmer success where the calendar did not record the tool.',
+      parts:['NSPB0649 / ULK649 — used on completed 2026-09-28 job','ULK6140 — used on completed 2026-06-11 job','ULK6145 / KR5TXPZ3 — referenced in 2026-06-11 duplicate-key notes; verify exact configuration']
+    }
+  ];
   const mainModelFamilies=[
     {make:'Ford',models:['F-150','F-250','F-350','Explorer','Expedition','Escape','Bronco','Mustang','Ranger'],system:'Ford PATS / Intelligent Access family',keys:'Confirm keyed ignition vs proximity, FCC/frequency, buttons and emergency blade.',programmers:'Check FDRS/OEM path first on late models; otherwise verify IM608 / Smart Pro / AutoProPAD coverage for exact YMM.',tools:'FDRS · IM608 · Smart Pro · AutoProPAD · battery support',verify:'Exact YMM · ignition type · FCC/frequency · blade · current programmer coverage',notes:'Family reference only — Ford platforms and key packages split by year, trim and equipment.'},
     {make:'Chevrolet',models:['Silverado','Tahoe','Suburban','Equinox','Traverse','Colorado','Malibu','Camaro'],system:'GM theft-deterrent / proximity family',keys:'Confirm transponder vs proximity, FCC, button layout and emergency blade. Similar GM fobs are not automatically interchangeable.',programmers:'Verify exact GM generation and YMM before programming; OEM/server access may apply on newer platforms.',tools:'IM608 · Smart Pro · AutoProPAD · battery support',verify:'Exact YMM · keyed/prox · FCC · blade/keyway · GM platform · programmer coverage',notes:'GM spans several security generations. Treat this as a dispatch checklist, not an exact part-number record.'},
@@ -613,8 +627,10 @@ window.addEventListener('error',function(e){setTimeout(function(){var n=document
     return keyforgeReference.find(r=>v.year>=r.yearMin&&v.year<=r.yearMax&&r.make.toLowerCase()===v.make.toLowerCase()&&r.models.some(m=>m.toLowerCase()===v.model.toLowerCase()))||null;
   }
   function renderKeyforgeReference(x){
-    const exactRef=findKeyforgeReference(x);
+    const keyforgeExact=findKeyforgeReference(x);
     const v=currentReferenceVehicle(x);
+    const metroExact=v?metroFieldReference.find(r=>v.year>=r.yearMin&&v.year<=r.yearMax&&normRef(r.make)===normRef(v.make)&&r.models.some(m=>normRef(m)===normRef(v.model))):null;
+    const exactRef=metroExact||keyforgeExact;
     const ref=exactRef||findMainModelFamily(v);
     if(!v)return '';
     const safe=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -633,6 +649,7 @@ window.addEventListener('error',function(e){setTimeout(function(){var n=document
         <div><span>TOOLS</span><strong>${tools}</strong></div>
         <div><span>MODULES / SYSTEM</span><strong>${ref?safe(ref.system):empty}</strong></div>
       </div>
+      ${ref&&Array.isArray(ref.parts)&&ref.parts.length?`<div class="alert-card common-parts-card" style="margin-top:12px"><div><b>COMMON PARTS / CROSS-REFS</b><div style="margin-top:7px">${ref.parts.map(p=>'<div class="common-part-row">'+safe(p)+'</div>').join('')}</div><div class="tiny" style="margin-top:7px">Shop-history references, not blanket interchange claims. Verify exact FCC/frequency/buttons/blade before ordering.</div></div></div>`:''}
       <div class="alert-card" style="margin-top:12px"><div><b>NOTES</b><p>${notes}</p><div class="tiny"><b>Verify:</b> ${verify}</div></div></div>
     </section>`;
     let hub='';
