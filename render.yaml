@@ -2,7 +2,7 @@ services:
   - type: web
     name: metro-lishi-lookup-secure
     runtime: node
-    plan: starter
+    plan: free
     buildCommand: npm install
     startCommand: npm start
     healthCheckPath: /
