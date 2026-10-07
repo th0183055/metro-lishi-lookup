@@ -691,18 +691,33 @@ window.addEventListener('error',function(e){setTimeout(function(){var n=document
     for(const [label,re] of pats){let m;while((m=re.exec(text)))out.push(label+': '+m[1]);}
     return [...new Set(out)];
   }
-  function renderVinJobs(vin){
-    const jobs=referenceHub.vinHistory?.byVin?.[vin]||[];
-    if(!jobs.length)return '<div class="warn"><strong>No match in the imported Metro history snapshot for this exact VIN.</strong><div class="tiny">This is not proof we have never worked on it. The static work-log export can lag newer Google Calendar jobs; verify recent calendar history when needed.</div></div>';
-    return '<div class="vin-history-head">'+refBadge('METRO HISTORY','green')+refBadge(jobs.length+' VISIT'+(jobs.length===1?'':'S'),'green')+'</div>'+jobs.map((j,i)=>{
+  function renderVinJobs(jobs,liveState=''){
+    if(!jobs.length)return '<div class="warn"><strong>No live Metro calendar match returned for this exact VIN.</strong><div class="tiny">'+escapeRef(liveState||'Live history requires the protected Metro Calendar service.')+'</div></div>';
+    return '<div class="vin-history-head">'+refBadge('LIVE METRO HISTORY','green')+refBadge(jobs.length+' VISIT'+(jobs.length===1?'':'S'),'green')+'</div>'+jobs.map((j,i)=>{
       const codes=extractJobCodes(j);
       return '<details class="vin-job" '+(i===0?'open':'')+'><summary><b>'+escapeRef(j.timestamp||'Unknown date')+'</b> · '+escapeRef(j.serviceType||'Job')+' · '+escapeRef(j.partNumber||'No part recorded')+'</summary><div class="vin-job-grid">'+
-      kv('WHO / TECH',j.technician)+kv('WHAT / SERVICE',j.serviceType)+kv('WHEN',j.timestamp)+kv('JOB / WHERE CLUE',j.gCalTitle)+
+      kv('WHO / TECH',j.technician)+kv('WHAT / SERVICE',j.serviceType)+kv('WHEN',j.timestamp)+kv('WHERE',j.location||j.gCalTitle)+
       kv('PART USED',j.partNumber)+kv('PROGRAMMER',j.programmer)+kv('PIN REQUIRED',j.pinRequired)+kv('PIN SUCCESS',j.pinSuccess)+
       kv('KC / PC / CODES',codes.join(' · '))+kv('PRICING LEVEL',j.pricingLevel)+kv('ADDITIONAL MILEAGE',j.additionalMileage)+kv('VEHICLE SUBTOTAL',moneyish(j.vehSubTotal))+
-      kv('REPLENISH TO',j.replenishTo)+kv('PAYMENT / INVOICE',j.paymentInfo)+kv('VIN RECORDED',j.vinRaw)+kv('SOURCE',j.source||'Metro work-log snapshot')+kv('WHY / NOTES',j.notes)+
+      kv('REPLENISH TO',j.replenishTo)+kv('PAYMENT / INVOICE',j.paymentInfo)+kv('VIN RECORDED',j.vinRaw)+kv('SOURCE',j.source||'Live Metro Google Calendar')+kv('WHY / NOTES',j.notes)+
       '</div></details>';
     }).join('');
+  }
+  async function fetchLiveVinHistory(vin){
+    try{
+      const res=await fetch('/api/vin-history?vin='+encodeURIComponent(vin),{credentials:'include',headers:{'Accept':'application/json'}});
+      if(res.status===401){
+        const password=prompt('Metro live job history is protected. Enter the Metro history password:');
+        if(!password)return {jobs:[],state:'Live Metro history is locked.',locked:true};
+        const login=await fetch('/api/login',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({password})});
+        if(!login.ok)return {jobs:[],state:'Metro history sign-in failed.',locked:true};
+        const retry=await fetch('/api/vin-history?vin='+encodeURIComponent(vin),{credentials:'include',headers:{'Accept':'application/json'}});
+        if(!retry.ok)throw new Error('history service returned '+retry.status);
+        const again=await retry.json();return {jobs:Array.isArray(again.jobs)?again.jobs:[],state:again.message||'',locked:false};
+      }
+      if(!res.ok)throw new Error('history service returned '+res.status);
+      const data=await res.json();return {jobs:Array.isArray(data.jobs)?data.jobs:[],state:data.message||'',locked:false};
+    }catch(err){return {jobs:[],state:'Protected live Calendar history is not available on this deployment yet.',locked:false,error:String(err?.message||err)};}
   }
   async function searchVin(){
     const input=root.querySelector('#vinSearch'),vin=normalizeVin(input.value);input.value=vin;
@@ -714,6 +729,7 @@ window.addEventListener('error',function(e){setTimeout(function(){var n=document
       if(!res.ok)throw new Error('NHTSA returned '+res.status);
       const data=await res.json();decoded=data.Results?.[0]||null;
     }catch(err){decodeError=err?.message||'VIN decoder unavailable';}
+    const live=await fetchLiveVinHistory(vin);
     const d=decoded||{}, vehicle=[d.ModelYear,d.Make,d.Model].filter(Boolean).join(' ');
     const details=[
       ['VIN',vin],['VEHICLE',vehicle],['TRIM / SERIES',[d.Trim,d.Series].filter(Boolean).join(' · ')],['BODY',d.BodyClass],['VEHICLE TYPE',d.VehicleType],
@@ -724,11 +740,11 @@ window.addEventListener('error',function(e){setTimeout(function(){var n=document
     r.innerHTML='<div class="vin-dossier"><div class="ok"><strong>'+escapeRef(vehicle||'VIN decoded')+'</strong><div class="tiny">'+escapeRef(vin)+'</div></div>'+
       (decodeError?'<div class="warn"><strong>Live NHTSA decode unavailable.</strong><div class="tiny">'+escapeRef(decodeError)+'</div></div>':'')+
       '<div class="vin-decode-grid">'+details.map(x=>kv(x[0],x[1])).join('')+'</div>'+
-      '<div class="vin-section-title">PREVIOUS METRO JOBS</div>'+renderVinJobs(vin)+
+      '<div class="vin-section-title">PREVIOUS METRO JOBS</div>'+renderVinJobs(live.jobs,live.state)+
       (vehicle?'<div style="margin-top:12px"><button class="btn secondary" type="button" id="openYmmFromVin">Open '+escapeRef(vehicle)+' reference</button></div>':'')+'</div>';
     r.className='result show';showResult();
     const b=root.querySelector('#openYmmFromVin');if(b)b.onclick=()=>{setMode('ymm');yearSel.value=String(d.ModelYear||'');populateMakes();makeSel.value=d.Make||'';populateModels();modelSel.value=d.Model||'';search();};
-    remember('VIN: '+vin,(referenceHub.vinHistory?.byVin?.[vin]||[]).length,{mode:'vin',q:vin});
+    remember('VIN: '+vin,live.jobs.length,{mode:'vin',q:vin});
   }
   function search(){resultOrigin=mode;let list=[],label='';if(mode==='vin'){searchVin();return;}if(mode==='ymm'){const y=Number(yearSel.value),mk=makeSel.value,mo=modelSel.value;if(!y||!mk||!mo){alert('Choose a year, make, and model first.');return;}label=`${y} ${mk} ${mo}`;try{list=bestYmmMatches(y,mk,mo);remember(label,list.length,{mode:'ymm',year:yearSel.value,make:makeSel.value,model:modelSel.value});renderMany(sortMatches(list));}catch(err){console.error('Vehicle search failed:',err);const r=root.querySelector('#result');r.innerHTML='<div class="warn"><strong>Vehicle search error.</strong><div class="tiny">'+escapeRef(err&&err.message?err.message:'Unknown render error')+'</div></div>';r.className='result show';showResult();}return;}else if(mode==='lishi'){const q=root.querySelector('#lishi').value.trim();label=`Lishi: ${q}`;list=toolMatches(q);}else if(mode==='keyway'){const q=root.querySelector('#keyway').value.trim();label=`Keyway: ${q}`;list=keywayMatches(q);}else if(mode==='quick'){const q=root.querySelector('#quickSearch').value.trim();label=`Quick: ${q}`;list=quickMatches(q);}else if(mode==='reference'){const q=root.querySelector('#referenceSearch').value.trim();if(!q){alert('Enter a tool, FCC, OEM or part number first.');return;}const hits=referenceSearch(q);const r=root.querySelector('#result');r.innerHTML=`<div class="ok"><strong>${hits.length} reference match${hits.length===1?'':'es'}</strong><div class="tiny">Imported Metro / KeyForge reference datasets</div></div><div class="matches">${hits.length?hits.map(h=>`<div class="match"><div class="tiny">${h.type}</div><strong>${h.title}</strong><div>${h.detail||''}</div></div>`).join(''):'<div class="warn"><strong>No imported reference match.</strong><div class="tiny">That is not proof the part/tool does not exist — verify in current supplier/OEM sources.</div></div>'}</div>`;r.className='result show';showResult();return;}const replay=mode==='ymm'?{mode:'ymm',year:yearSel.value,make:makeSel.value,model:modelSel.value}:mode==='lishi'?{mode:'lishi',q:root.querySelector('#lishi').value.trim()}:mode==='keyway'?{mode:'keyway',q:root.querySelector('#keyway').value.trim()}:mode==='quick'?{mode:'quick',q:root.querySelector('#quickSearch').value.trim()}:null;remember(label,list.length,replay);renderMany(sortMatches(list));}
   function renderRecent(){const r=root.querySelector('#result');if(!recent.length){r.innerHTML='<div class="warn"><strong>No recent searches yet.</strong></div>';r.className='result show';showResult();return;}r.innerHTML=`<div class="ok"><strong>Recent searches</strong></div><div class="matches">${recent.map((x,i)=>`<div class="match"><strong>${x.label}</strong><div class="tiny">${x.count} match${x.count===1?'':'es'}</div>${x.replay?'<button type="button" class="btn secondary" data-recent="'+i+'">Run again</button>':''}</div>`).join('')}</div>`;r.className='result show';showResult();r.querySelectorAll('[data-recent]').forEach(b=>b.addEventListener('click',()=>{const x=recent[Number(b.dataset.recent)],p=x&&x.replay;if(!p)return;setMode(p.mode);if(mode==='ymm'){yearSel.value=p.year;populateMakes();makeSel.value=p.make;populateModels();modelSel.value=p.model;}else if(mode==='lishi')root.querySelector('#lishi').value=p.q;else if(mode==='keyway')root.querySelector('#keyway').value=p.q;else if(mode==='quick')root.querySelector('#quickSearch').value=p.q;else if(mode==='reference')root.querySelector('#referenceSearch').value=p.q;else if(mode==='vin')root.querySelector('#vinSearch').value=p.q;search();}));}
