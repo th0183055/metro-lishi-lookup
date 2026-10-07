@@ -8,7 +8,9 @@ const CALENDARS=[
  ['Justin','justin@wekeycars.com'],['Logan','logan@wekeycars.com'],['Nathan Work','nathan@wekeycars.com'],['Nick','nick@wekeycars.com'],
  ['Roy / Shop Work','locksmith@metrolockdm.com'],['Roy','roy@wekeycars.com'],['Travis','travis@wekeycars.com'],
  ['Travis Alsobrook','travis.alsobrook@wekeycars.com'],['Jason','jason@wekeycars.com'],["Mike's Work",'mike@wekeycars.com'],
- ['Locksmith','metrolockdm.com_2etlr90s4rui16h113mm7vmsio@group.calendar.google.com']
+ ['Locksmith','metrolockdm.com_2etlr90s4rui16h113mm7vmsio@group.calendar.google.com'],
+ ['Quotes','metrolockdm.com_9d5vcjimkfbb4k9cqp9hepv3uo@group.calendar.google.com'],
+ ['Order Parts','metrolockdm.com_sv7en5oa732hnboi9tosvrga6s@group.calendar.google.com']
 ];
 const sessions=new Map();
 const json=(res,status,obj,extra={})=>{res.writeHead(status,{'Content-Type':'application/json','Cache-Control':'no-store',...extra});res.end(JSON.stringify(obj));};
@@ -23,7 +25,7 @@ function field(text,label){const m=String(text||'').match(new RegExp('(?:^|\\n)'
 function parseEvent(ev,tech,vin){
  const text=[ev.summary,ev.description].filter(Boolean).join('\n');
  const money=field(text,'(?:Subtotal|Vehicle Subtotal)');
- return {timestamp:ev.start?.dateTime||ev.start?.date||'',technician:tech,serviceType:field(text,'(?:Service|Service Type)')||String(ev.summary||'').split(/\s+/)[0]||'',gCalTitle:ev.summary||'',location:ev.location||'',partNumber:field(text,'Part\\(s\\) Used')||field(text,'Part Number'),programmer:field(text,'Programmer'),pinRequired:field(text,'PIN Required'),pinSuccess:field(text,'PIN Success'),pricingLevel:field(text,'Pricing Level'),additionalMileage:field(text,'Additional Mileage'),vehSubTotal:money.replace(/^\$/,''),replenishTo:field(text,'Replenish To'),paymentInfo:field(text,'Payment'),vinRaw:vin,notes:field(text,'Notes')||'',source:'Live Metro Google Calendar'};
+ return {timestamp:ev.start?.dateTime||ev.start?.date||'',technician:tech,serviceType:field(text,'(?:Service|Service Type)')||String(ev.summary||'').split(/\s+/)[0]||'',gCalTitle:ev.summary||'',location:ev.location||'',partNumber:field(text,'Part\\(s\\) Used')||field(text,'Part Number'),programmer:field(text,'Programmer'),pinRequired:field(text,'PIN Required'),pinSuccess:field(text,'PIN Success'),pricingLevel:field(text,'Pricing Level'),additionalMileage:field(text,'Additional Mileage'),vehSubTotal:money.replace(/^\$/,''),replenishTo:field(text,'Replenish To'),paymentInfo:field(text,'Payment'),vinRaw:vin,notes:field(text,'Notes')||'',source:'Live Metro Google Calendar',researchOnly:(tech==='Quotes'||tech==='Order Parts')};
 }
 async function calendarJobs(vin){
  const token=await googleToken(),jobs=[],terms=[vin,vin.slice(-8),vin.slice(-6)];
