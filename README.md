@@ -23,7 +23,7 @@ No match is not proof of incompatibility. Family matches are not exact fitment. 
 
 ## Secure live Metro VIN history
 
-Detailed VIN/job history is intentionally **not shipped in the public static data bundle**. The secure Node service searches only these six allowlisted Omaha work calendars: Tim, Larry, Noah, Kurt, Gage, and Jason.
+Detailed VIN/job history is intentionally **not shipped in the public static data bundle**. The secure Node service searches all relevant shared Metro work/job calendars available to the account (currently 19), while excluding personal/family, holiday, vacation, quotes, and order-parts calendars.
 
 Required server-only environment variables:
 
@@ -32,6 +32,6 @@ Required server-only environment variables:
 - `GOOGLE_CLIENT_SECRET`
 - `GOOGLE_REFRESH_TOKEN` — Google OAuth credential with read access to the six calendars.
 
-The browser submits only a VIN to `/api/vin-history` after server authentication. The server obtains the Google access token, searches the allowlisted calendars, sanitizes matching events, and returns only those exact-VIN job records. Sessions use an 8-hour `HttpOnly; Secure; SameSite=Strict` cookie. API responses use `Cache-Control: no-store`.
+The browser submits only a VIN to `/api/vin-history` after server authentication. The server obtains the Google access token, searches the allowlisted work calendars using the full VIN plus last-8 and last-6 suffix searches, ranks exact VIN matches above suffix matches, sanitizes matching events, and returns only those exact-VIN job records. Sessions use an 8-hour `HttpOnly; Secure; SameSite=Strict` cookie. API responses use `Cache-Control: no-store`.
 
 The existing Render Static Site cannot securely hold Google OAuth secrets. `render.yaml` defines the replacement Node web service. Configure the four secrets in Render before using live history. Do not commit their values.

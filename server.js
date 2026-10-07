@@ -3,8 +3,12 @@
 const http=require('http'),crypto=require('crypto'),fs=require('fs'),path=require('path'),querystring=require('querystring');
 const PORT=process.env.PORT||3000,ROOT=__dirname;
 const CALENDARS=[
- ['Tim','tim@wekeycars.com'],['Larry','larry@wekeycars.com'],['Noah','noah@wekeycars.com'],
- ['Kurt','kurt@metrolockdm.com'],['Gage','gage@wekeycars.com'],['Jason','jason@wekeycars.com']
+ ['Kurt Work','kurt@metrolockdm.com'],['Larry','larry@wekeycars.com'],['Tim Work','tim@wekeycars.com'],['Gage','gage@wekeycars.com'],
+ ["Chun's Work",'tech@wekeycars.com'],['Evan','evan@wekeycars.com'],['Noah','noah@wekeycars.com'],["Brad's Work",'brad@wekeycars.com'],
+ ['Justin','justin@wekeycars.com'],['Logan','logan@wekeycars.com'],['Nathan Work','nathan@wekeycars.com'],['Nick','nick@wekeycars.com'],
+ ['Roy / Shop Work','locksmith@metrolockdm.com'],['Roy','roy@wekeycars.com'],['Travis','travis@wekeycars.com'],
+ ['Travis Alsobrook','travis.alsobrook@wekeycars.com'],['Jason','jason@wekeycars.com'],["Mike's Work",'mike@wekeycars.com'],
+ ['Locksmith','metrolockdm.com_2etlr90s4rui16h113mm7vmsio@group.calendar.google.com']
 ];
 const sessions=new Map();
 const json=(res,status,obj,extra={})=>{res.writeHead(status,{'Content-Type':'application/json','Cache-Control':'no-store',...extra});res.end(JSON.stringify(obj));};
@@ -22,17 +26,25 @@ function parseEvent(ev,tech,vin){
  return {timestamp:ev.start?.dateTime||ev.start?.date||'',technician:tech,serviceType:field(text,'(?:Service|Service Type)')||String(ev.summary||'').split(/\s+/)[0]||'',gCalTitle:ev.summary||'',location:ev.location||'',partNumber:field(text,'Part\\(s\\) Used')||field(text,'Part Number'),programmer:field(text,'Programmer'),pinRequired:field(text,'PIN Required'),pinSuccess:field(text,'PIN Success'),pricingLevel:field(text,'Pricing Level'),additionalMileage:field(text,'Additional Mileage'),vehSubTotal:money.replace(/^\$/,''),replenishTo:field(text,'Replenish To'),paymentInfo:field(text,'Payment'),vinRaw:vin,notes:field(text,'Notes')||'',source:'Live Metro Google Calendar'};
 }
 async function calendarJobs(vin){
- const token=await googleToken(),jobs=[];
+ const token=await googleToken(),jobs=[],terms=[vin,vin.slice(-8),vin.slice(-6)];
  for(const [tech,id] of CALENDARS){
-   let page='';
-   do{
-     const u=new URL('https://www.googleapis.com/calendar/v3/calendars/'+encodeURIComponent(id)+'/events');
-     u.searchParams.set('q',vin);u.searchParams.set('singleEvents','true');u.searchParams.set('maxResults','50');u.searchParams.set('timeMin','2015-01-01T00:00:00Z');u.searchParams.set('timeMax',new Date(Date.now()+86400000).toISOString());if(page)u.searchParams.set('pageToken',page);
-     const r=await fetch(u,{headers:{Authorization:'Bearer '+token}});if(!r.ok)throw new Error('Calendar '+id+' '+r.status);
-     const d=await r.json();for(const ev of d.items||[]){const hay=(ev.summary||'')+'\n'+(ev.description||'');if(hay.toUpperCase().replace(/[^A-Z0-9]/g,'').includes(vin))jobs.push(parseEvent(ev,tech,vin));}page=d.nextPageToken||'';
-   }while(page);
+   const eventMap=new Map();
+   for(const term of terms){
+     let page='';
+     do{
+       const u=new URL('https://www.googleapis.com/calendar/v3/calendars/'+encodeURIComponent(id)+'/events');
+       u.searchParams.set('q',term);u.searchParams.set('singleEvents','true');u.searchParams.set('maxResults','50');u.searchParams.set('timeMin','2015-01-01T00:00:00Z');u.searchParams.set('timeMax',new Date(Date.now()+86400000).toISOString());if(page)u.searchParams.set('pageToken',page);
+       const r=await fetch(u,{headers:{Authorization:'Bearer '+token}});if(!r.ok)throw new Error('Calendar '+id+' '+r.status);
+       const d=await r.json();for(const ev of d.items||[])eventMap.set(ev.id,ev);page=d.nextPageToken||'';
+     }while(page);
+   }
+   for(const ev of eventMap.values()){
+     const hay=((ev.summary||'')+'\n'+(ev.description||'')).toUpperCase().replace(/[^A-Z0-9]/g,'');
+     const match=hay.includes(vin)?{type:'EXACT VIN',chars:17}:hay.includes(vin.slice(-8))?{type:'LAST 8 VIN',chars:8}:hay.includes(vin.slice(-6))?{type:'LAST 6 VIN',chars:6}:null;
+     if(match){const job=parseEvent(ev,tech,vin);job.vinMatch=match.type;job.vinMatchChars=match.chars;job.source='Live shared Metro Google Calendar · '+match.type;jobs.push(job);}
+   }
  }
- jobs.sort((a,b)=>String(b.timestamp).localeCompare(String(a.timestamp)));
+ jobs.sort((a,b)=>(b.vinMatchChars-a.vinMatchChars)||String(b.timestamp).localeCompare(String(a.timestamp)));
  const seen=new Set();return jobs.filter(j=>{const k=[j.timestamp,j.gCalTitle,j.partNumber,j.technician].join('|');if(seen.has(k))return false;seen.add(k);return true;});
 }
 const server=http.createServer(async(req,res)=>{

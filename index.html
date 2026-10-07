@@ -696,7 +696,7 @@ window.addEventListener('error',function(e){setTimeout(function(){var n=document
     return '<div class="vin-history-head">'+refBadge('LIVE METRO HISTORY','green')+refBadge(jobs.length+' VISIT'+(jobs.length===1?'':'S'),'green')+'</div>'+jobs.map((j,i)=>{
       const codes=extractJobCodes(j);
       return '<details class="vin-job" '+(i===0?'open':'')+'><summary><b>'+escapeRef(j.timestamp||'Unknown date')+'</b> · '+escapeRef(j.serviceType||'Job')+' · '+escapeRef(j.partNumber||'No part recorded')+'</summary><div class="vin-job-grid">'+
-      kv('WHO / TECH',j.technician)+kv('WHAT / SERVICE',j.serviceType)+kv('WHEN',j.timestamp)+kv('WHERE',j.location||j.gCalTitle)+
+      kv('WHO / TECH',j.technician)+kv('VIN MATCH',j.vinMatch||'EXACT VIN')+kv('WHAT / SERVICE',j.serviceType)+kv('WHEN',j.timestamp)+kv('WHERE',j.location||j.gCalTitle)+
       kv('PART USED',j.partNumber)+kv('PROGRAMMER',j.programmer)+kv('PIN REQUIRED',j.pinRequired)+kv('PIN SUCCESS',j.pinSuccess)+
       kv('KC / PC / CODES',codes.join(' · '))+kv('PRICING LEVEL',j.pricingLevel)+kv('ADDITIONAL MILEAGE',j.additionalMileage)+kv('VEHICLE SUBTOTAL',moneyish(j.vehSubTotal))+
       kv('REPLENISH TO',j.replenishTo)+kv('PAYMENT / INVOICE',j.paymentInfo)+kv('VIN RECORDED',j.vinRaw)+kv('SOURCE',j.source||'Live Metro Google Calendar')+kv('WHY / NOTES',j.notes)+
@@ -717,7 +717,7 @@ window.addEventListener('error',function(e){setTimeout(function(){var n=document
       }
       if(!res.ok)throw new Error('history service returned '+res.status);
       const data=await res.json();return {jobs:Array.isArray(data.jobs)?data.jobs:[],state:data.message||'',locked:false};
-    }catch(err){return {jobs:[],state:'Protected live Calendar history is not available on this deployment yet.',locked:false,error:String(err?.message||err)};}
+    }catch(err){return {jobs:[],state:'Live Calendar history is not connected on this deployment. The current Static Site cannot run the protected /api service; deploy the secure Render Web Service first.',locked:false,error:String(err?.message||err)};}
   }
   async function searchVin(){
     const input=root.querySelector('#vinSearch'),vin=normalizeVin(input.value);input.value=vin;
