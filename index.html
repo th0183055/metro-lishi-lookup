@@ -658,16 +658,18 @@ window.addEventListener('error',function(e){setTimeout(function(){var n=document
   })();
   
   // --- Metro Reference Hub v2: imported KeyForge datasets, kept separate from core Lishi DB ---
-  const referenceHub={lishi:null,catalog:null,vins:null,sources:null,ready:false};
+  const referenceHub={lishi:null,catalog:null,vins:null,sources:null,parts:null,programming:null,ready:false};
   async function loadReferenceHub(){
     try{
-      const [lishi,catalog,vins,sources]=await Promise.all([
+      const [lishi,catalog,vins,sources,parts,programming]=await Promise.all([
         fetch('./data/lishi-master-reference.json').then(r=>r.json()),
         fetch('./data/master-catalog.json').then(r=>r.json()),
         fetch('./data/vin-reference.json').then(r=>r.json()),
-        fetch('./data/public-reference-sources.json').then(r=>r.json())
+        fetch('./data/public-reference-sources.json').then(r=>r.json()),
+        fetch('./data/parts-reference-compact.json').then(r=>r.json()),
+        fetch('./data/programming-reference-compact.json').then(r=>r.json())
       ]);
-      Object.assign(referenceHub,{lishi,catalog,vins,sources,ready:true});
+      Object.assign(referenceHub,{lishi,catalog,vins,sources,parts,programming,ready:true});
       document.dispatchEvent(new CustomEvent('metro-reference-ready'));
     }catch(err){console.warn('Reference Hub unavailable; core lookup still works.',err);}
   }
@@ -692,6 +694,11 @@ window.addEventListener('error',function(e){setTimeout(function(){var n=document
       normRef(r.make)===normRef(v.make)&&normRef(r.model)===normRef(v.model)&&String(r.year)===String(v.year)
     ).slice(0,6);
   }
+  function programmingMatches(v){
+    if(!referenceHub.ready||!v)return[];
+    return (referenceHub.programming?.rows||[]).filter(r=>normRef(r.make)===normRef(v.make)&&normRef(r.model)===normRef(v.model)&&String(r.year)===String(v.year)).slice(0,8);
+  }
+
   function refBadge(label,tone='cyan'){
     const map={cyan:'rgba(34,211,238,.14)',green:'rgba(34,197,94,.14)',yellow:'rgba(250,204,21,.14)',red:'rgba(248,113,113,.14)'};
     return '<span style="display:inline-flex;padding:4px 8px;border-radius:999px;background:'+map[tone]+';border:1px solid rgba(255,255,255,.1);font-size:11px;font-weight:800;letter-spacing:.04em">'+esc(label)+'</span>';
@@ -699,7 +706,7 @@ window.addEventListener('error',function(e){setTimeout(function(){var n=document
   function renderReferenceHubDetails(x){
     const v=currentReferenceVehicle(x); if(!v)return'';
     if(!referenceHub.ready)return '<div class="note" style="margin-top:10px">Loading expanded Metro reference data…</div>';
-    const lm=masterLishiMatches(v), hist=shopHistoryMatches(v);
+    const lm=masterLishiMatches(v), hist=shopHistoryMatches(v), prog=programmingMatches(v);
     const exact=lm.length?lm.map(a=>a.canonical||a.toolFromPdf).filter(Boolean):[];
     const histTools=hist.map(h=>h.latestProgrammerHint).filter(Boolean);
     const evidence=hist.length?hist.map(h=>esc(h.year+' '+h.make+' '+h.model+(h.trim?' · '+h.trim:'')+(h.latestProgrammerHint?' · '+h.latestProgrammerHint:''))).join('<br>'):'No exact-YMM shop-history record imported.';
@@ -712,7 +719,7 @@ window.addEventListener('error',function(e){setTimeout(function(){var n=document
       '<div style="font-size:12px;opacity:.72;margin-bottom:4px">MASTER LISHI REFERENCE</div>'+
       '<div style="font-weight:800">'+(exact.length?esc([...new Set(exact)].join(' · ')):'No exact YMM application in imported master reference — do not infer a tool.')+'</div>'+
       (lm.length?'<div style="font-size:12px;opacity:.7;margin-top:5px">'+esc(lm.map(a=>a.yearsText||[a.yearStart,a.yearEnd].filter(Boolean).join('–')).filter(Boolean).join(' · '))+'</div>':'')+
-      '<div style="font-size:12px;opacity:.72;margin:12px 0 4px">METRO / KEYFORGE SHOP HISTORY</div>'+
+      '<div style="font-size:12px;opacity:.72;margin:12px 0 4px">PROGRAMMING REFERENCE</div>'+ (prog.length?prog.map(p=>'<div style="font-size:13px;line-height:1.55"><b>'+esc(p.system||'System not named')+'</b> · '+esc(p.method||'method not listed')+' · '+esc(p.ignition||'')+(p.online?' · online/security access':'')+(p.pin?' · PIN required':'')+(p.bypass?' · bypass required':'')+(p.akl===true?' · AKL supported':p.akl===false?' · AKL not listed as supported':'')+(p.notes?' · '+esc(p.notes):'')+'</div>').join(''):'<div style="font-size:13px">No exact-YMM programming row imported — verify current tool/OEM coverage.</div>')+'<div style="font-size:12px;opacity:.72;margin:12px 0 4px">METRO / KEYFORGE SHOP HISTORY</div>'+
       '<div style="font-size:13px;line-height:1.55">'+evidence+'</div>'+
       (histTools.length?'<div style="margin-top:6px;font-size:12px">Recorded programmer hints: <b>'+esc([...new Set(histTools)].join(' · '))+'</b></div>':'')+
       '<div style="margin-top:10px;font-size:11px;opacity:.62">Imported reference data supports the lookup; it does not silently replace the core Lishi recommendation. Verify exact key identifiers and current programmer coverage before production use.</div>'+
@@ -728,6 +735,11 @@ window.addEventListener('error',function(e){setTimeout(function(){var n=document
       if(hay.includes(n))out.push({type:'Lishi tool',title:t.canonical||t.tool,detail:[t.primaryFunction,(t.manufacturers||[]).join(', '),t.closestYears].filter(Boolean).join(' · ')});
       if(out.length>=12)break;
     }
+    for(const r of (referenceHub.parts?.rows||[])){
+      const hay=normRef([r.ml,r.gsi,r.mw,r.ki,r.ti,...(r.aliases||[]),...(r.oem||[]),...(r.tokens||[])].join(' '));
+      if(hay.includes(n))out.push({type:'Parts cross-reference',title:r.ki||r.ti||r.ml||r.gsi||r.mw||(r.oem||[])[0]||'Part match',detail:[r.ki&&'KI '+r.ki,r.ti&&'TI '+r.ti,r.ml&&'ML '+r.ml,r.gsi&&'GSI '+r.gsi,r.mw&&'MW '+r.mw,(r.oem||[]).length&&'OEM '+r.oem.join(', '),(r.aliases||[]).length&&'Aliases '+r.aliases.join(', ')].filter(Boolean).join(' · ')});
+      if(out.length>=24)break;
+    }
     for(const r of (referenceHub.catalog?.rows||[])){
       const hay=normRef([r.hlPartNumber,r.fccId,...(r.oemPartNumbers||[]),r.mwLegacyPartNumber,r.lrLegacyPartNumber,r.tiActivePartNumber,r.klrActivePartNumber].join(' '));
       if(hay.includes(n))out.push({type:'Part / FCC',title:r.hlPartNumber||r.fccId||'Catalog match',detail:[r.fccId&&'FCC '+r.fccId,(r.oemPartNumbers||[]).length&&'OEM '+r.oemPartNumbers.join(', '),r.tiActivePartNumber&&'TI '+r.tiActivePartNumber].filter(Boolean).join(' · ')});
@@ -735,7 +747,7 @@ window.addEventListener('error',function(e){setTimeout(function(){var n=document
     }
     return out;
   }
-  window.MetroReferenceHub={search:referenceSearch,masterLishiMatches,shopHistoryMatches,state:referenceHub};
+  window.MetroReferenceHub={search:referenceSearch,masterLishiMatches,shopHistoryMatches,programmingMatches,state:referenceHub};
 </script>
 </div>
 </body>
