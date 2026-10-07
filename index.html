@@ -229,6 +229,8 @@
 
     #lishi-app .common-part-row{padding:6px 0;border-bottom:1px solid rgba(151,184,211,.12);font-size:13px;font-weight:700;line-height:1.4}
     #lishi-app .common-part-row:last-child{border-bottom:0}
+
+    #lishi-app .metro-evidence{padding:12px;border:1px solid rgba(34,197,94,.24);border-radius:12px;background:rgba(34,197,94,.045)}
 </style>
   <div class="wrap">
     <div class="hero">
@@ -688,18 +690,19 @@ window.addEventListener('error',function(e){setTimeout(function(){var n=document
   })();
   
   // --- Metro Reference Hub v2: imported KeyForge datasets, kept separate from core Lishi DB ---
-  const referenceHub={lishi:null,catalog:null,vins:null,sources:null,parts:null,programming:null,ready:false};
+  const referenceHub={lishi:null,catalog:null,vins:null,sources:null,parts:null,programming:null,worklog:null,ready:false};
   async function loadReferenceHub(){
     try{
-      const [lishi,catalog,vins,sources,parts,programming]=await Promise.all([
+      const [lishi,catalog,vins,sources,parts,programming,worklog]=await Promise.all([
         fetch('./data/lishi-master-reference.json').then(r=>r.json()),
         fetch('./data/master-catalog.json').then(r=>r.json()),
         fetch('./data/vin-reference.json').then(r=>r.json()),
         fetch('./data/public-reference-sources.json').then(r=>r.json()),
         fetch('./data/parts-reference-compact.json').then(r=>r.json()),
-        fetch('./data/programming-reference-compact.json').then(r=>r.json())
+        fetch('./data/programming-reference-compact.json').then(r=>r.json()),
+        fetch('./data/metro-worklog-reference.json').then(r=>r.json())
       ]);
-      Object.assign(referenceHub,{lishi,catalog,vins,sources,parts,programming,ready:true});
+      Object.assign(referenceHub,{lishi,catalog,vins,sources,parts,programming,worklog,ready:true});
       document.dispatchEvent(new CustomEvent('metro-reference-ready'));
     }catch(err){console.warn('Reference Hub unavailable; core lookup still works.',err);}
   }
@@ -768,7 +771,8 @@ window.addEventListener('error',function(e){setTimeout(function(){var n=document
       (exact.length?refBadge('MASTER LISHI MATCH','green'):refBadge('NO EXACT MASTER MATCH','yellow'))+
       (hist.length?refBadge(hist.length+' SHOP RECORD'+(hist.length===1?'':'S'),'green'):refBadge('NO SHOP HISTORY','yellow'))+'</div>'+
       (errors.length?'<div class="warn" style="margin-bottom:10px"><strong>Some reference sources unavailable:</strong> '+escapeRef(errors.join(', '))+'</div>':'')+
-      '<div style="font-size:12px;opacity:.72;margin-bottom:4px">MASTER LISHI REFERENCE</div>'+
+      '<div style="font-size:12px;opacity:.72;margin-bottom:4px">METRO WORK-LOG EVIDENCE</div>'+renderMetroWorklog(v)+
+      '<div style="font-size:12px;opacity:.72;margin:12px 0 4px">MASTER LISHI REFERENCE</div>'+
       '<div style="font-weight:800">'+(exact.length?escapeRef([...new Set(exact)].join(' · ')):'No exact YMM application in imported master reference — do not infer a tool.')+'</div>'+
       '<div style="font-size:12px;opacity:.72;margin:12px 0 4px">PROGRAMMING REFERENCE</div>'+
       (prog.length?prog.map(p=>'<div style="font-size:13px;line-height:1.55"><b>'+escapeRef(p.system||'System not named')+'</b> · '+escapeRef(p.method||'method not listed')+(p.ignition?' · '+escapeRef(p.ignition):'')+(p.online?' · online/security access':'')+(p.pin?' · PIN required':'')+(p.bypass?' · bypass required':'')+(p.akl===true?' · AKL supported':p.akl===false?' · AKL not listed as supported':'')+(p.notes?' · '+escapeRef(p.notes):'')+'</div>').join(''):'<div style="font-size:13px">No exact-YMM programming row imported — verify current tool/OEM coverage.</div>')+
@@ -812,3 +816,21 @@ window.addEventListener('error',function(e){setTimeout(function(){var n=document
 </div>
 </body>
 </html>
+  function metroWorklogMatch(v){
+    if(!referenceHub.ready||!referenceHub.worklog||!v)return null;
+    return referenceHub.worklog.groups?.[String(v.year)+'|'+normRef(v.make)+'|'+normRef(v.model)]||null;
+  }
+  function renderMetroWorklog(v){
+    const g=metroWorklogMatch(v);if(!g)return '<div style="font-size:13px">No exact-YMM Metro work-log record.</div>';
+    const fmt=(arr,empty)=>arr?.length?arr.map(x=>escapeRef(x.value)+' <span style="opacity:.55">×'+x.count+'</span>').join(' · '):empty;
+    const notes=g.notes?.length?g.notes.map(x=>'<div class="common-part-row">'+escapeRef(x.text)+(x.count>1?' <span style="opacity:.55">×'+x.count+'</span>':'')+'</div>').join(''):'';
+    return '<div class="metro-evidence">'+
+      '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">'+refBadge('METRO CONFIRMED','green')+refBadge(g.jobCount+' EXACT YMM JOB'+(g.jobCount===1?'':'S'),'green')+'</div>'+
+      '<div class="ref-grid">'+
+        '<div class="ref-cell"><b>PARTS USED</b><p>'+fmt(g.parts,'No part recorded')+'</p></div>'+
+        '<div class="ref-cell"><b>PROGRAMMERS USED</b><p>'+fmt(g.programmers,'No programmer recorded')+'</p></div>'+
+        '<div class="ref-cell"><b>SERVICE TYPES</b><p>'+fmt(g.services,'Not recorded')+'</p></div>'+
+        '<div class="ref-cell"><b>PIN HISTORY</b><p>Required on '+g.pinRequiredCount+' / '+g.jobCount+' job'+(g.jobCount===1?'':'s')+(g.pinRequiredCount?' · success recorded '+g.pinSuccessCount+' time'+(g.pinSuccessCount===1?'':'s'):'')+'</p></div>'+
+      '</div>'+ (notes?'<div style="margin-top:10px"><div style="font-size:11px;opacity:.65">FIELD NOTES</div>'+notes+'</div>':'')+
+      '<div class="tiny" style="margin-top:8px">Evidence from completed/recorded Metro work-log entries for this exact year, make and model. Repeated counts show frequency, not universal interchangeability.</div></div>';
+  }
