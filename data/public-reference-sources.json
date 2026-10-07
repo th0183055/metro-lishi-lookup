@@ -1,0 +1,703 @@
+{
+  "generatedAt": "2026-05-03T12:19:31.179Z",
+  "sources": [
+    {
+      "id": "nhtsa-vpic",
+      "name": "NHTSA vPIC",
+      "type": "official public vehicle identity",
+      "use": "VIN/YMM identity, body, engine, trim, plant, drive, fuel, GVWR, and manufacturer facts"
+    },
+    {
+      "id": "autel-coverage",
+      "name": "Autel public vehicle coverage",
+      "type": "public programmer coverage clue",
+      "use": "Programmer availability clues by product/make/model/year where the public endpoint returns data"
+    },
+    {
+      "id": "xtool-public",
+      "name": "XTOOL public sources",
+      "type": "public programmer coverage clue",
+      "use": "Public XTOOL pages/manuals for key programming, IMMO, and EEPROM capability clues"
+    },
+    {
+      "id": "advanced-diagnostics-public",
+      "name": "Advanced Diagnostics public sources",
+      "type": "public programmer coverage clue",
+      "use": "Public Smart Pro / Info Quest capability clues; exact coverage still must be verified in licensed resources"
+    },
+    {
+      "id": "oem-programmer-sources",
+      "name": "OEM programmer sources",
+      "type": "official service-info clue",
+      "use": "Official Ford/Toyota/GM/Honda/Nissan/Stellantis entry points for OEM/security programming paths"
+    },
+    {
+      "id": "eeprom-tool-sources",
+      "name": "EEPROM tool sources",
+      "type": "public tool capability clue",
+      "use": "Public tool pages/manuals for EEPROM/MCU/IMMO ECU read-write capability"
+    },
+    {
+      "id": "fcc-equipment",
+      "name": "FCC equipment authorization data",
+      "type": "public FCC ID clue",
+      "use": "FCC grantee/product clues after a candidate FCC is known from supplier or field data"
+    },
+    {
+      "id": "supplier-public-catalogs",
+      "name": "Supplier public catalogs",
+      "type": "public/live catalog facts",
+      "use": "Product names, fitment, FCC/chip/button clues, images, and stock where access is allowed"
+    }
+  ],
+  "autel": {
+    "products": [
+      {
+        "name": "MaxiIM IM508S",
+        "systemName": "sv2131_im508s"
+      },
+      {
+        "name": "MaxiIM IM608 II",
+        "systemName": "dv2123_im608,sv2121_im608"
+      },
+      {
+        "name": "MaxiIM IM608 PRO II",
+        "systemName": "dv2123_im608p,sv2121_im608p"
+      },
+      {
+        "name": "MaxiIM IM608S II",
+        "systemName": "sv2121_im608s"
+      }
+    ],
+    "coverage": [
+      {
+        "product": "MaxiIM IM508S",
+        "supportedMakes": [
+          "Acura",
+          "Chevrolet",
+          "Chrysler",
+          "Dodge",
+          "Ford",
+          "Honda",
+          "JEEP",
+          "Lexus",
+          "Nissan",
+          "RAM",
+          "Subaru",
+          "Toyota",
+          "Volkswagen"
+        ],
+        "supportedMakeCount": 13
+      },
+      {
+        "product": "MaxiIM IM608 II",
+        "supportedMakes": [
+          "Acura",
+          "Chevrolet",
+          "Chrysler",
+          "DODGE",
+          "Dodge",
+          "Ford",
+          "Honda",
+          "JEEP",
+          "Lexus",
+          "Nissan",
+          "RAM",
+          "Subaru",
+          "Toyota",
+          "Volkswagen"
+        ],
+        "supportedMakeCount": 14
+      },
+      {
+        "product": "MaxiIM IM608 PRO II",
+        "supportedMakes": [
+          "Acura",
+          "Chevrolet",
+          "Chrysler",
+          "DODGE",
+          "Dodge",
+          "Ford",
+          "Honda",
+          "JEEP",
+          "Lexus",
+          "Nissan",
+          "RAM",
+          "Subaru",
+          "Toyota",
+          "Volkswagen"
+        ],
+        "supportedMakeCount": 14
+      },
+      {
+        "product": "MaxiIM IM608S II",
+        "supportedMakes": [
+          "Acura",
+          "Chevrolet",
+          "Chrysler",
+          "DODGE",
+          "Dodge",
+          "Ford",
+          "Honda",
+          "JEEP",
+          "Lexus",
+          "Nissan",
+          "RAM",
+          "Subaru",
+          "Toyota",
+          "Volkswagen"
+        ],
+        "supportedMakeCount": 14
+      }
+    ]
+  },
+  "probes": [
+    {
+      "id": "xtool-vehicle-coverage",
+      "name": "XTOOL public vehicle coverage",
+      "category": "programmer coverage",
+      "url": "https://www.xtoolonline.com/support/vehicle-coverage",
+      "use": "XTOOL make/model coverage clue for diagnosis, key programming, special functions, and IMMO where publicly accessible.",
+      "status": "probe failed",
+      "error": "fetch failed",
+      "signals": [],
+      "publicTextIndexed": false
+    },
+    {
+      "id": "xtool-key-programming-manual",
+      "name": "XTOOL key programming manual",
+      "category": "programmer / EEPROM tool",
+      "url": "https://www.xtooltech.com/official/product_document/1661416059950.pdf",
+      "use": "Public manual availability clue for XTOOL key programming workflow and EEPROM/IMMO tool capability.",
+      "status": "available",
+      "httpStatus": 200,
+      "contentType": "application/pdf",
+      "signals": [
+        "key programming",
+        "immo",
+        "eeprom"
+      ],
+      "publicTextIndexed": false
+    },
+    {
+      "id": "advanced-diagnostics-smart-pro",
+      "name": "Advanced Diagnostics Smart Pro",
+      "category": "programmer coverage",
+      "url": "https://www.hickleys.com/diagnostics/smartpro.php",
+      "use": "Public Smart Pro / Info Quest capability clue. Verify exact vehicle coverage inside licensed AD resources before dispatch.",
+      "status": "available",
+      "httpStatus": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "signals": [
+        "key programming",
+        "immo",
+        "all keys lost",
+        "pin",
+        "eeprom",
+        "ecu",
+        "smart pro",
+        "info quest"
+      ],
+      "publicTextIndexed": true
+    },
+    {
+      "id": "toyota-tis-techstream",
+      "name": "Toyota TIS / Techstream",
+      "category": "OEM programmer",
+      "url": "https://techinfo.toyota.com/",
+      "use": "Official Toyota service-info clue for Techstream, key code, immobilizer/smart reset, and security-professional workflow.",
+      "status": "available",
+      "httpStatus": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "signals": [
+        "immo",
+        "immobilizer",
+        "ecu",
+        "techstream"
+      ],
+      "publicTextIndexed": true
+    },
+    {
+      "id": "gm-techline-connect",
+      "name": "GM Techline Connect / SPS",
+      "category": "OEM programmer",
+      "url": "https://www.gmparts.com/trade-professionals/diagnostic-support-resources",
+      "use": "Official GM clue for Techline Connect, SPS, calibrations, GDS software, and scan-tool update workflow.",
+      "status": "available",
+      "httpStatus": 200,
+      "contentType": "text/html;charset=utf-8",
+      "signals": [
+        "pin",
+        "techline",
+        "sps"
+      ],
+      "publicTextIndexed": true
+    },
+    {
+      "id": "ford-motorcraft-service",
+      "name": "Ford Motorcraft Service / FDRS",
+      "category": "OEM programmer",
+      "url": "https://www.motorcraft-service.com/contact/index.html",
+      "use": "Official Ford service-info clue for IDS/FJDS/FDRS diagnostic support and account-based service access.",
+      "status": "probe failed",
+      "error": "fetch failed",
+      "signals": [],
+      "publicTextIndexed": false
+    },
+    {
+      "id": "honda-techinfo",
+      "name": "Honda Service Express / i-HDS",
+      "category": "OEM programmer",
+      "url": "https://techinfo.honda.com/",
+      "use": "Official Honda service-info entry point. Verify immobilizer and module workflows through authorized service resources.",
+      "status": "available",
+      "httpStatus": 200,
+      "contentType": "text/html; charset=utf-8",
+      "signals": [
+        "immo",
+        "immobilizer"
+      ],
+      "publicTextIndexed": true
+    },
+    {
+      "id": "nissan-techinfo",
+      "name": "Nissan TechInfo",
+      "category": "OEM programmer",
+      "url": "https://www.nissan-techinfo.com/",
+      "use": "Official Nissan service-info entry point. Verify CONSULT/security workflows through authorized resources.",
+      "status": "available",
+      "httpStatus": 200,
+      "contentType": "text/html; charset=utf-8",
+      "signals": [
+        "ecu"
+      ],
+      "publicTextIndexed": true
+    },
+    {
+      "id": "stellantis-techauthority",
+      "name": "Stellantis TechAuthority",
+      "category": "OEM programmer",
+      "url": "https://www.techauthority.com/",
+      "use": "Official Stellantis service-info entry point for Chrysler/Dodge/Jeep/Ram security and programming references.",
+      "status": "available",
+      "httpStatus": 200,
+      "contentType": "text/html",
+      "signals": [
+        "ecu"
+      ],
+      "publicTextIndexed": true
+    },
+    {
+      "id": "autel-xp400-pro",
+      "name": "Autel XP400 Pro",
+      "category": "EEPROM tool",
+      "url": "https://autel.com/au/immo/xp400-pro/",
+      "use": "Public EEPROM/MCU/IMMO ECU read-write tool capability clue for Autel IM508/IM608 workflows.",
+      "status": "available",
+      "httpStatus": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "signals": [
+        "key programming",
+        "immo",
+        "eeprom",
+        "mcu",
+        "ecu"
+      ],
+      "publicTextIndexed": true
+    },
+    {
+      "id": "xhorse-key-tool-plus-manual",
+      "name": "Xhorse Key Tool Plus manual",
+      "category": "EEPROM tool",
+      "url": "https://www.xhorsetool.com/upload/pro/22120916705811783595.pdf",
+      "use": "Public manual availability clue for Xhorse OBD IMMO, EEPROM read/write, and immo data tooling.",
+      "status": "available",
+      "httpStatus": 200,
+      "contentType": "application/pdf",
+      "signals": [
+        "immo",
+        "eeprom",
+        "xhorse"
+      ],
+      "publicTextIndexed": false
+    },
+    {
+      "id": "obdstar-x300-dp-plus",
+      "name": "OBDSTAR X300 DP Plus",
+      "category": "EEPROM tool",
+      "url": "https://www.obdstarstore.com/wholesale/obdstar-x300-dp-plus-full-configuration.html",
+      "use": "Public IMMO/EEPROM/key-renewing adapter capability clue. Verify vehicle-specific coverage before quoting.",
+      "status": "unavailable",
+      "httpStatus": 404,
+      "contentType": "text/html",
+      "signals": [],
+      "publicTextIndexed": false
+    }
+  ],
+  "programmerSources": [
+    {
+      "id": "xtool-vehicle-coverage",
+      "name": "XTOOL public vehicle coverage",
+      "category": "programmer coverage",
+      "url": "https://www.xtoolonline.com/support/vehicle-coverage",
+      "use": "XTOOL make/model coverage clue for diagnosis, key programming, special functions, and IMMO where publicly accessible.",
+      "status": "probe failed",
+      "error": "fetch failed",
+      "signals": [],
+      "publicTextIndexed": false
+    },
+    {
+      "id": "xtool-key-programming-manual",
+      "name": "XTOOL key programming manual",
+      "category": "programmer / EEPROM tool",
+      "url": "https://www.xtooltech.com/official/product_document/1661416059950.pdf",
+      "use": "Public manual availability clue for XTOOL key programming workflow and EEPROM/IMMO tool capability.",
+      "status": "available",
+      "httpStatus": 200,
+      "contentType": "application/pdf",
+      "signals": [
+        "key programming",
+        "immo",
+        "eeprom"
+      ],
+      "publicTextIndexed": false
+    },
+    {
+      "id": "advanced-diagnostics-smart-pro",
+      "name": "Advanced Diagnostics Smart Pro",
+      "category": "programmer coverage",
+      "url": "https://www.hickleys.com/diagnostics/smartpro.php",
+      "use": "Public Smart Pro / Info Quest capability clue. Verify exact vehicle coverage inside licensed AD resources before dispatch.",
+      "status": "available",
+      "httpStatus": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "signals": [
+        "key programming",
+        "immo",
+        "all keys lost",
+        "pin",
+        "eeprom",
+        "ecu",
+        "smart pro",
+        "info quest"
+      ],
+      "publicTextIndexed": true
+    },
+    {
+      "id": "toyota-tis-techstream",
+      "name": "Toyota TIS / Techstream",
+      "category": "OEM programmer",
+      "url": "https://techinfo.toyota.com/",
+      "use": "Official Toyota service-info clue for Techstream, key code, immobilizer/smart reset, and security-professional workflow.",
+      "status": "available",
+      "httpStatus": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "signals": [
+        "immo",
+        "immobilizer",
+        "ecu",
+        "techstream"
+      ],
+      "publicTextIndexed": true
+    },
+    {
+      "id": "gm-techline-connect",
+      "name": "GM Techline Connect / SPS",
+      "category": "OEM programmer",
+      "url": "https://www.gmparts.com/trade-professionals/diagnostic-support-resources",
+      "use": "Official GM clue for Techline Connect, SPS, calibrations, GDS software, and scan-tool update workflow.",
+      "status": "available",
+      "httpStatus": 200,
+      "contentType": "text/html;charset=utf-8",
+      "signals": [
+        "pin",
+        "techline",
+        "sps"
+      ],
+      "publicTextIndexed": true
+    },
+    {
+      "id": "ford-motorcraft-service",
+      "name": "Ford Motorcraft Service / FDRS",
+      "category": "OEM programmer",
+      "url": "https://www.motorcraft-service.com/contact/index.html",
+      "use": "Official Ford service-info clue for IDS/FJDS/FDRS diagnostic support and account-based service access.",
+      "status": "probe failed",
+      "error": "fetch failed",
+      "signals": [],
+      "publicTextIndexed": false
+    },
+    {
+      "id": "honda-techinfo",
+      "name": "Honda Service Express / i-HDS",
+      "category": "OEM programmer",
+      "url": "https://techinfo.honda.com/",
+      "use": "Official Honda service-info entry point. Verify immobilizer and module workflows through authorized service resources.",
+      "status": "available",
+      "httpStatus": 200,
+      "contentType": "text/html; charset=utf-8",
+      "signals": [
+        "immo",
+        "immobilizer"
+      ],
+      "publicTextIndexed": true
+    },
+    {
+      "id": "nissan-techinfo",
+      "name": "Nissan TechInfo",
+      "category": "OEM programmer",
+      "url": "https://www.nissan-techinfo.com/",
+      "use": "Official Nissan service-info entry point. Verify CONSULT/security workflows through authorized resources.",
+      "status": "available",
+      "httpStatus": 200,
+      "contentType": "text/html; charset=utf-8",
+      "signals": [
+        "ecu"
+      ],
+      "publicTextIndexed": true
+    },
+    {
+      "id": "stellantis-techauthority",
+      "name": "Stellantis TechAuthority",
+      "category": "OEM programmer",
+      "url": "https://www.techauthority.com/",
+      "use": "Official Stellantis service-info entry point for Chrysler/Dodge/Jeep/Ram security and programming references.",
+      "status": "available",
+      "httpStatus": 200,
+      "contentType": "text/html",
+      "signals": [
+        "ecu"
+      ],
+      "publicTextIndexed": true
+    }
+  ],
+  "eepromSources": [
+    {
+      "id": "xtool-key-programming-manual",
+      "name": "XTOOL key programming manual",
+      "category": "programmer / EEPROM tool",
+      "url": "https://www.xtooltech.com/official/product_document/1661416059950.pdf",
+      "use": "Public manual availability clue for XTOOL key programming workflow and EEPROM/IMMO tool capability.",
+      "status": "available",
+      "httpStatus": 200,
+      "contentType": "application/pdf",
+      "signals": [
+        "key programming",
+        "immo",
+        "eeprom"
+      ],
+      "publicTextIndexed": false
+    },
+    {
+      "id": "autel-xp400-pro",
+      "name": "Autel XP400 Pro",
+      "category": "EEPROM tool",
+      "url": "https://autel.com/au/immo/xp400-pro/",
+      "use": "Public EEPROM/MCU/IMMO ECU read-write tool capability clue for Autel IM508/IM608 workflows.",
+      "status": "available",
+      "httpStatus": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "signals": [
+        "key programming",
+        "immo",
+        "eeprom",
+        "mcu",
+        "ecu"
+      ],
+      "publicTextIndexed": true
+    },
+    {
+      "id": "xhorse-key-tool-plus-manual",
+      "name": "Xhorse Key Tool Plus manual",
+      "category": "EEPROM tool",
+      "url": "https://www.xhorsetool.com/upload/pro/22120916705811783595.pdf",
+      "use": "Public manual availability clue for Xhorse OBD IMMO, EEPROM read/write, and immo data tooling.",
+      "status": "available",
+      "httpStatus": 200,
+      "contentType": "application/pdf",
+      "signals": [
+        "immo",
+        "eeprom",
+        "xhorse"
+      ],
+      "publicTextIndexed": false
+    },
+    {
+      "id": "obdstar-x300-dp-plus",
+      "name": "OBDSTAR X300 DP Plus",
+      "category": "EEPROM tool",
+      "url": "https://www.obdstarstore.com/wholesale/obdstar-x300-dp-plus-full-configuration.html",
+      "use": "Public IMMO/EEPROM/key-renewing adapter capability clue. Verify vehicle-specific coverage before quoting.",
+      "status": "unavailable",
+      "httpStatus": 404,
+      "contentType": "text/html",
+      "signals": [],
+      "publicTextIndexed": false
+    }
+  ],
+  "nhtsa": {
+    "vehicleVariableCount": 144,
+    "usefulVariables": [
+      {
+        "id": 5,
+        "name": "Body Class",
+        "group": "Exterior / Body"
+      },
+      {
+        "id": 9,
+        "name": "Engine Number of Cylinders",
+        "group": "Engine"
+      },
+      {
+        "id": 15,
+        "name": "Drive Type",
+        "group": "Mechanical / Drivetrain"
+      },
+      {
+        "id": 17,
+        "name": "Engine Stroke Cycles",
+        "group": "Engine"
+      },
+      {
+        "id": 18,
+        "name": "Engine Model",
+        "group": "Engine"
+      },
+      {
+        "id": 21,
+        "name": "Engine Power (kW)",
+        "group": "Engine"
+      },
+      {
+        "id": 24,
+        "name": "Fuel Type - Primary",
+        "group": "Engine"
+      },
+      {
+        "id": 26,
+        "name": "Make",
+        "group": "General"
+      },
+      {
+        "id": 28,
+        "name": "Model",
+        "group": "General"
+      },
+      {
+        "id": 29,
+        "name": "Model Year",
+        "group": "General"
+      },
+      {
+        "id": 31,
+        "name": "Plant City",
+        "group": "General"
+      },
+      {
+        "id": 34,
+        "name": "Series",
+        "group": "General"
+      },
+      {
+        "id": 37,
+        "name": "Transmission Style",
+        "group": "Mechanical / Transmission"
+      },
+      {
+        "id": 38,
+        "name": "Trim",
+        "group": "General"
+      },
+      {
+        "id": 63,
+        "name": "Transmission Speeds",
+        "group": "Mechanical / Transmission"
+      },
+      {
+        "id": 64,
+        "name": "Engine Configuration",
+        "group": "Engine"
+      },
+      {
+        "id": 66,
+        "name": "Fuel Type - Secondary",
+        "group": "Engine"
+      },
+      {
+        "id": 67,
+        "name": "Fuel Delivery / Fuel Injection Type",
+        "group": "Engine"
+      },
+      {
+        "id": 71,
+        "name": "Engine Brake (hp) From",
+        "group": "Engine"
+      },
+      {
+        "id": 72,
+        "name": "EV Drive Unit",
+        "group": "Mechanical / Battery"
+      },
+      {
+        "id": 75,
+        "name": "Plant Country",
+        "group": "General"
+      },
+      {
+        "id": 76,
+        "name": "Plant Company Name",
+        "group": "General"
+      },
+      {
+        "id": 77,
+        "name": "Plant State",
+        "group": "General"
+      },
+      {
+        "id": 97,
+        "name": "NCSA Make",
+        "group": "Internal"
+      },
+      {
+        "id": 98,
+        "name": "NCSA Model",
+        "group": "Internal"
+      },
+      {
+        "id": 109,
+        "name": "Trim2",
+        "group": "General"
+      },
+      {
+        "id": 110,
+        "name": "Series2",
+        "group": "General"
+      },
+      {
+        "id": 125,
+        "name": "Engine Brake (hp) To",
+        "group": "Engine"
+      },
+      {
+        "id": 129,
+        "name": "Other Engine Info",
+        "group": "Engine"
+      },
+      {
+        "id": 146,
+        "name": "Engine Manufacturer",
+        "group": "Engine"
+      },
+      {
+        "id": 200,
+        "name": "Fuel-Tank Type",
+        "group": "Exterior / Motorcycle"
+      },
+      {
+        "id": 201,
+        "name": "Fuel-Tank Material",
+        "group": "Exterior / Motorcycle"
+      }
+    ]
+  }
+}
