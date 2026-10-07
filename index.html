@@ -706,7 +706,15 @@ window.addEventListener('error',function(e){setTimeout(function(){var n=document
   async function fetchLiveVinHistory(vin){
     try{
       const res=await fetch('/api/vin-history?vin='+encodeURIComponent(vin),{credentials:'include',headers:{'Accept':'application/json'}});
-      if(res.status===401)return {jobs:[],state:'Live Metro history is locked. Sign in to the protected service to view private job data.',locked:true};
+      if(res.status===401){
+        const password=prompt('Metro live job history is protected. Enter the Metro history password:');
+        if(!password)return {jobs:[],state:'Live Metro history is locked.',locked:true};
+        const login=await fetch('/api/login',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({password})});
+        if(!login.ok)return {jobs:[],state:'Metro history sign-in failed.',locked:true};
+        const retry=await fetch('/api/vin-history?vin='+encodeURIComponent(vin),{credentials:'include',headers:{'Accept':'application/json'}});
+        if(!retry.ok)throw new Error('history service returned '+retry.status);
+        const again=await retry.json();return {jobs:Array.isArray(again.jobs)?again.jobs:[],state:again.message||'',locked:false};
+      }
       if(!res.ok)throw new Error('history service returned '+res.status);
       const data=await res.json();return {jobs:Array.isArray(data.jobs)?data.jobs:[],state:data.message||'',locked:false};
     }catch(err){return {jobs:[],state:'Protected live Calendar history is not available on this deployment yet.',locked:false,error:String(err?.message||err)};}
