@@ -693,14 +693,14 @@ window.addEventListener('error',function(e){setTimeout(function(){var n=document
   }
   function renderVinJobs(vin){
     const jobs=referenceHub.vinHistory?.byVin?.[vin]||[];
-    if(!jobs.length)return '<div class="warn"><strong>No previous Metro job found for this exact VIN.</strong><div class="tiny">The vehicle can still be decoded and its YMM reference can be searched normally.</div></div>';
+    if(!jobs.length)return '<div class="warn"><strong>No match in the imported Metro history snapshot for this exact VIN.</strong><div class="tiny">This is not proof we have never worked on it. The static work-log export can lag newer Google Calendar jobs; verify recent calendar history when needed.</div></div>';
     return '<div class="vin-history-head">'+refBadge('METRO HISTORY','green')+refBadge(jobs.length+' VISIT'+(jobs.length===1?'':'S'),'green')+'</div>'+jobs.map((j,i)=>{
       const codes=extractJobCodes(j);
       return '<details class="vin-job" '+(i===0?'open':'')+'><summary><b>'+escapeRef(j.timestamp||'Unknown date')+'</b> · '+escapeRef(j.serviceType||'Job')+' · '+escapeRef(j.partNumber||'No part recorded')+'</summary><div class="vin-job-grid">'+
       kv('WHO / TECH',j.technician)+kv('WHAT / SERVICE',j.serviceType)+kv('WHEN',j.timestamp)+kv('JOB / WHERE CLUE',j.gCalTitle)+
       kv('PART USED',j.partNumber)+kv('PROGRAMMER',j.programmer)+kv('PIN REQUIRED',j.pinRequired)+kv('PIN SUCCESS',j.pinSuccess)+
       kv('KC / PC / CODES',codes.join(' · '))+kv('PRICING LEVEL',j.pricingLevel)+kv('ADDITIONAL MILEAGE',j.additionalMileage)+kv('VEHICLE SUBTOTAL',moneyish(j.vehSubTotal))+
-      kv('REPLENISH TO',j.replenishTo)+kv('PAYMENT / INVOICE',j.paymentInfo)+kv('VIN RECORDED',j.vinRaw)+kv('WHY / NOTES',j.notes)+
+      kv('REPLENISH TO',j.replenishTo)+kv('PAYMENT / INVOICE',j.paymentInfo)+kv('VIN RECORDED',j.vinRaw)+kv('SOURCE',j.source||'Metro work-log snapshot')+kv('WHY / NOTES',j.notes)+
       '</div></details>';
     }).join('');
   }
