@@ -478,7 +478,7 @@ window.addEventListener('error',function(e){setTimeout(function(){var n=document
   function metroRecordToDb(x){return {yearMin:Number(x.year),yearMax:Number(x.year),make:x.make,models:[x.model],tool:x.tool,vehicle:x.year+' '+x.make+' '+x.model+' — METRO CONFIRMED',examples:x.note||'Confirmed by Metro Locksmith in the field.',keyway:x.keyway||'Verify blade',used:x.used||'Door / emergency key',warning:x.warning||'Shop-confirmed record. Still compare blade/keyway before insertion.',verified:'Exact YMM — Metro confirmed',metroConfirmed:true};}
   function bestYmmMatches(y,mk,mo){
     const metro=metroYmm.filter(x=>Number(x.year)===y&&x.make===mk&&x.model===mo).map(metroRecordToDb);
-    if(metro.length)return metro;
+    if(metro.length)return dedupeRecords(metro);
     let list=dedupeRecords(vehicleRecords.filter(x=>y>=x.yearMin&&y<=x.yearMax&&x.make===mk&&x.models.includes(mo)));
     if(!list.length)return [];
     const best=Math.min(...list.map(confidenceRank));
@@ -696,7 +696,14 @@ window.addEventListener('error',function(e){setTimeout(function(){var n=document
   }
   function programmingMatches(v){
     if(!referenceHub.ready||!v)return[];
-    return (referenceHub.programming?.rows||[]).filter(r=>normRef(r.make)===normRef(v.make)&&normRef(r.model)===normRef(v.model)&&String(r.year)===String(v.year)).slice(0,8);
+    const rows=(referenceHub.programming?.rows||[]).filter(r=>normRef(r.make)===normRef(v.make)&&normRef(r.model)===normRef(v.model)&&String(r.year)===String(v.year));
+    const merged=new Map();
+    for(const r of rows){
+      const k=[normRef(r.ignition),normRef(r.system),normRef(r.method),r.pin?'1':'0',r.bypass?'1':'0',r.online?'1':'0',String(r.akl)].join('|');
+      if(!merged.has(k))merged.set(k,{...r,sources:new Set(),notesSet:new Set()});
+      const m=merged.get(k); if(r.source)m.sources.add(r.source); if(r.notes)m.notesSet.add(r.notes);
+    }
+    return [...merged.values()].map(r=>({...r,source:[...r.sources].join(', '),notes:[...r.notesSet].join(' · ')}));
   }
 
   function refBadge(label,tone='cyan'){
@@ -729,23 +736,32 @@ window.addEventListener('error',function(e){setTimeout(function(){var n=document
   function referenceSearch(q){
     if(!referenceHub.ready)return[];
     const n=normRef(q); if(!n)return[];
-    const out=[];
+    const grouped=new Map();
+    const add=(kind,title,detail,identity)=>{
+      const key=kind+'|'+normRef(identity||title);
+      if(!grouped.has(key))grouped.set(key,{type:kind,title,details:new Set()});
+      if(detail)grouped.get(key).details.add(detail);
+    };
     for(const t of (referenceHub.lishi?.tools||[])){
       const hay=normRef([t.tool,t.canonical,...(t.aliases||[]),...(t.manufacturers||[])].join(' '));
-      if(hay.includes(n))out.push({type:'Lishi tool',title:t.canonical||t.tool,detail:[t.primaryFunction,(t.manufacturers||[]).join(', '),t.closestYears].filter(Boolean).join(' · ')});
-      if(out.length>=12)break;
+      if(hay.includes(n))add('Lishi tool',t.canonical||t.tool,[t.primaryFunction,(t.manufacturers||[]).join(', '),t.closestYears].filter(Boolean).join(' · '),t.canonical||t.tool);
     }
     for(const r of (referenceHub.parts?.rows||[])){
       const hay=normRef([r.ml,r.gsi,r.mw,r.ki,r.ti,...(r.aliases||[]),...(r.oem||[]),...(r.tokens||[])].join(' '));
-      if(hay.includes(n))out.push({type:'Parts cross-reference',title:r.ki||r.ti||r.ml||r.gsi||r.mw||(r.oem||[])[0]||'Part match',detail:[r.ki&&'KI '+r.ki,r.ti&&'TI '+r.ti,r.ml&&'ML '+r.ml,r.gsi&&'GSI '+r.gsi,r.mw&&'MW '+r.mw,(r.oem||[]).length&&'OEM '+r.oem.join(', '),(r.aliases||[]).length&&'Aliases '+r.aliases.join(', ')].filter(Boolean).join(' · ')});
-      if(out.length>=24)break;
+      if(hay.includes(n)){
+        const ids=[r.ki,r.ti,r.ml,r.gsi,r.mw,...(r.oem||[]),...(r.aliases||[])].filter(Boolean);
+        const primary=r.ki||r.ti||r.ml||r.gsi||r.mw||(r.oem||[])[0]||'Part match';
+        add('Part cross-reference',primary,[r.ki&&'KI '+r.ki,r.ti&&'TI '+r.ti,r.ml&&'ML '+r.ml,r.gsi&&'GSI '+r.gsi,r.mw&&'MW '+r.mw,(r.oem||[]).length&&'OEM '+r.oem.join(', '),(r.aliases||[]).length&&'Aliases '+r.aliases.join(', ')].filter(Boolean).join(' · '),ids.map(normRef).sort().join('|')||primary);
+      }
     }
     for(const r of (referenceHub.catalog?.rows||[])){
       const hay=normRef([r.hlPartNumber,r.fccId,...(r.oemPartNumbers||[]),r.mwLegacyPartNumber,r.lrLegacyPartNumber,r.tiActivePartNumber,r.klrActivePartNumber].join(' '));
-      if(hay.includes(n))out.push({type:'Part / FCC',title:r.hlPartNumber||r.fccId||'Catalog match',detail:[r.fccId&&'FCC '+r.fccId,(r.oemPartNumbers||[]).length&&'OEM '+r.oemPartNumbers.join(', '),r.tiActivePartNumber&&'TI '+r.tiActivePartNumber].filter(Boolean).join(' · ')});
-      if(out.length>=24)break;
+      if(hay.includes(n)){
+        const ids=[r.hlPartNumber,r.fccId,...(r.oemPartNumbers||[]),r.mwLegacyPartNumber,r.lrLegacyPartNumber,r.tiActivePartNumber,r.klrActivePartNumber].filter(Boolean);
+        add('Catalog / FCC',r.hlPartNumber||r.fccId||'Catalog match',[r.fccId&&'FCC '+r.fccId,(r.oemPartNumbers||[]).length&&'OEM '+r.oemPartNumbers.join(', '),r.tiActivePartNumber&&'TI '+r.tiActivePartNumber].filter(Boolean).join(' · '),ids.map(normRef).sort().join('|')||r.hlPartNumber||r.fccId);
+      }
     }
-    return out;
+    return [...grouped.values()].map(x=>({type:x.type,title:x.title,detail:[...x.details].join(' · ')})).slice(0,24);
   }
   window.MetroReferenceHub={search:referenceSearch,masterLishiMatches,shopHistoryMatches,programmingMatches,state:referenceHub};
 </script>
