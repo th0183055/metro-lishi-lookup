@@ -696,7 +696,7 @@ window.addEventListener('error',function(e){setTimeout(function(){var n=document
     return '<div class="vin-history-head">'+refBadge('LIVE METRO HISTORY','green')+refBadge(jobs.length+' VISIT'+(jobs.length===1?'':'S'),'green')+'</div>'+jobs.map((j,i)=>{
       const codes=extractJobCodes(j);
       return '<details class="vin-job" '+(i===0?'open':'')+'><summary><b>'+escapeRef(j.timestamp||'Unknown date')+'</b> · '+escapeRef(j.serviceType||'Job')+' · '+escapeRef(j.partNumber||'No part recorded')+'</summary><div class="vin-job-grid">'+
-      kv('WHO / TECH',j.technician)+kv('VIN MATCH',j.vinMatch||'EXACT VIN')+kv('WHAT / SERVICE',j.serviceType)+kv('WHEN',j.timestamp)+kv('WHERE',j.location||j.gCalTitle)+
+      kv('WHO / TECH',j.technician)+kv('SOURCE TYPE',j.researchOnly?'RESEARCH / REFERENCE':'WORK HISTORY')+kv('VIN MATCH',j.vinMatch||'EXACT VIN')+kv('WHAT / SERVICE',j.serviceType)+kv('WHEN',j.timestamp)+kv('WHERE',j.location||j.gCalTitle)+
       kv('PART USED',j.partNumber)+kv('PROGRAMMER',j.programmer)+kv('PIN REQUIRED',j.pinRequired)+kv('PIN SUCCESS',j.pinSuccess)+
       kv('KC / PC / CODES',codes.join(' · '))+kv('PRICING LEVEL',j.pricingLevel)+kv('ADDITIONAL MILEAGE',j.additionalMileage)+kv('VEHICLE SUBTOTAL',moneyish(j.vehSubTotal))+
       kv('REPLENISH TO',j.replenishTo)+kv('PAYMENT / INVOICE',j.paymentInfo)+kv('VIN RECORDED',j.vinRaw)+kv('SOURCE',j.source||'Live Metro Google Calendar')+kv('WHY / NOTES',j.notes)+
